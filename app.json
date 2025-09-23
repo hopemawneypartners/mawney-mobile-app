@@ -1,29 +1,67 @@
 {
   "expo": {
-    "name": "MawneyAppNative",
-    "slug": "MawneyAppNative",
+    "name": "Mawney Partners",
+    "slug": "mawney-partners-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "sdkVersion": "54.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "splash": {
-      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#004b35"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mawneypartners.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "This app uses tracking to provide personalized content.",
+        "NSCameraUsageDescription": "This app needs access to camera to take profile pictures.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select profile pictures.",
+        "NSUserNotificationsUsageDescription": "This app sends notifications about new articles and market updates.",
+        "UIBackgroundModes": [
+          "background-fetch",
+          "background-processing",
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#004b35"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.mawneypartners.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ed6cfb91-a8de-4c5a-9da1-4f614d213797"
+      }
+    },
+    "owner": "hopegilbert"
   }
 }

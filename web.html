@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mawney Partners - Desktop App</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f9f7f3;
+            overflow: hidden;
+        }
+        
+        #root {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .desktop-header {
+            background: #004b35;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .desktop-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .desktop-logo {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .desktop-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .desktop-nav {
+            background: white;
+            border-bottom: 1px solid #4d8b70;
+            display: flex;
+            padding: 0 20px;
+        }
+        
+        .nav-item {
+            padding: 16px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            color: #4d4742;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: #f9f7f3;
+            color: #004b35;
+        }
+        
+        .nav-item.active {
+            color: #004b35;
+            border-bottom-color: #004b35;
+        }
+        
+        .desktop-main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f7f3;
+        }
+        
+        .desktop-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .desktop-button {
+            background: #004b35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .desktop-button:hover {
+            background: #266b52;
+        }
+        
+        .desktop-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #4d8b70;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .desktop-input:focus {
+            outline: none;
+            border-color: #004b35;
+        }
+        
+        .desktop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .desktop-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #4d4742;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="desktop-header">
+            <div class="desktop-title">Mawney Partners</div>
+            <img src="./assets/logo.png" alt="Logo" class="desktop-logo">
+        </div>
+        
+        <div class="desktop-content">
+            <div class="desktop-nav">
+                <div class="nav-item active" onclick="showTab('home')">🏠 Home</div>
+                <div class="nav-item" onclick="showTab('articles')">📰 Articles</div>
+                <div class="nav-item" onclick="showTab('todos')">✅ Todos</div>
+                <div class="nav-item" onclick="showTab('calls')">📞 Calls</div>
+                <div class="nav-item" onclick="showTab('ai')">🤖 AI Assistant</div>
+                <div class="nav-item" onclick="showTab('profile')">👤 Profile</div>
+            </div>
+            
+            <div class="desktop-main">
+                <div id="home-tab" class="tab-content">
+                    <h2>Welcome to Mawney Partners</h2>
+                    <div class="desktop-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">24</div>
+                            <div class="stat-label">New Articles</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">Pending Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Active Calls</div>
+                        </div>
+                    </div>
+                    
+                    <div class="desktop-card">
+                        <h3>Quick Actions</h3>
+                        <div class="desktop-grid">
+                            <button class="desktop-button" onclick="showTab('articles')">View Articles</button>
+                            <button class="desktop-button" onclick="showTab('todos')">Manage Todos</button>
+                            <button class="desktop-button" onclick="showTab('ai')">AI Assistant</button>
+                            <button class="desktop-button" onclick="showTab('calls')">Call Notes</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="articles-tab" class="tab-content" style="display: none;">
+                    <h2>Financial Articles</h2>
+                    <div class="desktop-card">
+                        <h3>Latest Market News</h3>
+                        <p>Access to real-time financial news and market updates...</p>
+                        <button class="desktop-button">Refresh Articles</button>
+                    </div>
+                </div>
+                
+                <div id="todos-tab" class="tab-content" style="display: none;">
+                    <h2>Task Management</h2>
+                    <div class="desktop-card">
+                        <input type="text" class="desktop-input" placeholder="Add new task...">
+                        <button class="desktop-button">Add Task</button>
+                    </div>
+                </div>
+                
+                <div id="calls-tab" class="tab-content" style="display: none;">
+                    <h2>Call Notes</h2>
+                    <div class="desktop-card">
+                        <h3>Recent Calls</h3>
+                        <p>Manage your call notes and recordings...</p>
+                    </div>
+                </div>
+                
+                <div id="ai-tab" class="tab-content" style="display: none;">
+                    <h2>AI Assistant</h2>
+                    <div class="desktop-card">
+                        <h3>Chat with AI</h3>
+                        <input type="text" class="desktop-input" placeholder="Ask me anything about finance...">
+                        <button class="desktop-button">Send Message</button>
+                    </div>
+                </div>
+                
+                <div id="profile-tab" class="tab-content" style="display: none;">
+                    <h2>User Profile</h2>
+                    <div class="desktop-card">
+                        <h3>Account Settings</h3>
+                        <p>Manage your profile and preferences...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.style.display = 'none');
+            
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Add active class to clicked nav item
+            event.target.classList.add('active');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Mawney Partners Desktop App loaded');
+        });
+    </script>
+</body>
+</html>
+

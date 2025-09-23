@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Browser Storage</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .clear { background-color: #ff4444; color: white; }
+        .success { background-color: #44ff44; color: black; }
+    </style>
+</head>
+<body>
+    <h1>Clear Mawney App Storage</h1>
+    <p>This will clear all localStorage data for the Mawney app.</p>
+    
+    <button class="clear" onclick="clearStorage()">Clear All Storage</button>
+    <button class="success" onclick="checkStorage()">Check Storage</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        function clearStorage() {
+            const keys = Object.keys(localStorage);
+            const mawneyKeys = keys.filter(key => key.includes('mawney') || key.includes('currentUser'));
+            
+            mawneyKeys.forEach(key => {
+                localStorage.removeItem(key);
+                console.log('Removed:', key);
+            });
+            
+            document.getElementById('result').innerHTML = `
+                <h3>Cleared ${mawneyKeys.length} keys:</h3>
+                <ul>
+                    ${mawneyKeys.map(key => `<li>${key}</li>`).join('')}
+                </ul>
+                <p><strong>Now refresh the Mawney app!</strong></p>
+            `;
+        }
+        
+        function checkStorage() {
+            const keys = Object.keys(localStorage);
+            const mawneyKeys = keys.filter(key => key.includes('mawney') || key.includes('currentUser'));
+            
+            document.getElementById('result').innerHTML = `
+                <h3>Current Mawney keys in storage:</h3>
+                <ul>
+                    ${mawneyKeys.map(key => `<li>${key}</li>`).join('')}
+                </ul>
+                <p>Total: ${mawneyKeys.length} keys</p>
+            `;
+        }
+        
+        // Check storage on load
+        checkStorage();
+    </script>
+</body>
+</html>
+
