@@ -58,15 +58,18 @@ export default function DailySummary({ articles }) {
 
   const generateSummary = useCallback(async () => {
     console.log('🔄 Generating summary with', articles?.length || 0, 'articles');
+    console.log('🔄 FORCE REFRESH - AI Summary should work now!');
     setLoading(true);
     setError(null);
 
     try {
       const result = await AIService.generateDailySummary(articles);
       console.log('✅ Summary generated successfully');
+      console.log('✅ Summary result:', result);
       setSummary(result);
     } catch (error) {
       console.error('❌ Error generating summary:', error);
+      console.error('❌ Error details:', error.message);
       setError(error.message);
     } finally {
       setLoading(false);
