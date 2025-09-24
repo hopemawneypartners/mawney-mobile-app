@@ -196,6 +196,8 @@ export default function ArticlesScreen() {
       const data = await response.json();
       console.log('📊 Received data:', data);
       console.log('📊 Articles count:', data.articles ? data.articles.length : 0);
+      console.log('📊 Data success:', data.success);
+      console.log('📊 First article:', data.articles?.[0]);
       
             if (data.success) {
               console.log('✅ Setting articles:', data.articles?.length || 0);
@@ -210,7 +212,28 @@ export default function ArticlesScreen() {
             }
     } catch (error) {
       console.error('❌ Error loading articles:', error);
-      setArticles([]);
+      
+      // Show sample articles if API fails
+      const sampleArticles = [
+        {
+          id: 'sample1',
+          title: 'Credit Market Update - Sample Article',
+          content: 'This is a sample article. The API connection may be having issues.',
+          source: 'Sample Source',
+          published_date: new Date().toISOString(),
+          link: '#'
+        },
+        {
+          id: 'sample2', 
+          title: 'Private Credit Trends - Sample Article',
+          content: 'Another sample article to show when the API is unavailable.',
+          source: 'Sample Source',
+          published_date: new Date().toISOString(),
+          link: '#'
+        }
+      ];
+      
+      setArticles(sampleArticles);
       
       let errorMessage = 'Unable to load articles. Please check:';
       let errorDetails = '';
@@ -223,7 +246,7 @@ export default function ArticlesScreen() {
         errorDetails = '• The API server encountered an error\n• Try refreshing the page\n• Check server logs';
       } else if (error.message.includes('Network request failed') || error.message.includes('fetch')) {
         errorMessage = 'Network connection failed.';
-        errorDetails = '• Your phone and computer must be on the same WiFi network\n• Check the API server is running on 192.168.1.162:5001\n• Try refreshing the page';
+        errorDetails = '• Check your internet connection\n• The API server may be temporarily unavailable\n• Try refreshing the page';
       } else {
         errorDetails = `• Error: ${error.message}\n• Try refreshing the page\n• Check network connection`;
       }
