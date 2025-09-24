@@ -124,14 +124,14 @@ export default function ArticlesScreen() {
       
       // Filter for recent articles (last 30 minutes) with high relevance
       const recentArticles = data.articles.filter(article => {
-        const articleDate = new Date(article.publishedAt || article.published_date || article.timestamp);
+        const articleDate = new Date(article.publishedAt || article.published_date || article.timestamp || article.date);
         const timeDiff = (new Date() - articleDate) / (1000 * 60); // minutes
         return timeDiff <= 30 && (article.relevanceScore >= 3 || article.relevanceScore === undefined);
       });
       
       // Find articles that haven't been notified about yet
       const newArticles = recentArticles.filter(article => {
-        const articleId = article.id || `${article.title}_${article.publishedAt}`;
+        const articleId = article.id || `${article.title}_${article.publishedAt || article.date}`;
         return !notifiedArticles.has(articleId);
       });
       
@@ -141,7 +141,7 @@ export default function ArticlesScreen() {
         // Send notifications for new articles (limit to 3)
         const articlesToNotify = newArticles.slice(0, 3);
         for (const article of articlesToNotify) {
-          const articleId = article.id || `${article.title}_${article.publishedAt}`;
+          const articleId = article.id || `${article.title}_${article.publishedAt || article.date}`;
           
           // Only send notification if we haven't notified about this article before
           if (!notifiedArticles.has(articleId)) {
@@ -262,9 +262,9 @@ export default function ArticlesScreen() {
       
       // Safe date filtering
       let matchesDate = true;
-      if (article.publishedAt || article.published_date || article.timestamp) {
+      if (article.publishedAt || article.published_date || article.timestamp || article.date) {
         try {
-          const dateString = article.publishedAt || article.published_date || article.timestamp;
+          const dateString = article.publishedAt || article.published_date || article.timestamp || article.date;
           const articleDate = new Date(dateString);
           const now = new Date();
           
@@ -315,8 +315,8 @@ export default function ArticlesScreen() {
   // Sort articles by date
   const sortedArticles = [...filteredArticles].sort((a, b) => {
     try {
-      const dateA = new Date(a.publishedAt || a.published_date || a.timestamp);
-      const dateB = new Date(b.publishedAt || b.published_date || b.timestamp);
+      const dateA = new Date(a.publishedAt || a.published_date || a.timestamp || a.date);
+      const dateB = new Date(b.publishedAt || b.published_date || b.timestamp || b.date);
       
       // Handle invalid dates
       if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
@@ -352,7 +352,7 @@ export default function ArticlesScreen() {
     console.log('📱 No filtered articles - checking why...');
     if (articles.length > 0) {
       const firstArticle = articles[0];
-      console.log('📱 First article date:', firstArticle.publishedAt || firstArticle.published_date || firstArticle.timestamp);
+      console.log('📱 First article date:', firstArticle.publishedAt || firstArticle.published_date || firstArticle.timestamp || firstArticle.date);
       console.log('📱 First article category:', firstArticle.category);
       console.log('📱 Category match:', selectedCategory === 'All' || (firstArticle.category && firstArticle.category.toLowerCase() === selectedCategory.toLowerCase()));
     }
@@ -393,7 +393,7 @@ export default function ArticlesScreen() {
     } else {
       Alert.alert(
         article.title || 'Untitled Article',
-        `${article.content || article.summary || 'No content available'}\n\nSource: ${article.source || 'Unknown'}\nCategory: ${article.category || 'Uncategorized'}\nPublished: ${formatDate(article.publishedAt || article.published_date || article.timestamp)}`,
+        `${article.content || article.summary || 'No content available'}\n\nSource: ${article.source || 'Unknown'}\nCategory: ${article.category || 'Uncategorized'}\nPublished: ${formatDate(article.publishedAt || article.published_date || article.timestamp || article.date)}`,
         [{ text: 'OK' }]
       );
     }
@@ -547,7 +547,7 @@ export default function ArticlesScreen() {
             >
               <View style={styles.articleHeader}>
                 <Text style={styles.articleCategory}>{article.category || 'Uncategorized'}</Text>
-                <Text style={styles.articleTime}>{formatDate(article.publishedAt || article.published_date || article.timestamp)}</Text>
+                <Text style={styles.articleTime}>{formatDate(article.publishedAt || article.published_date || article.timestamp || article.date)}</Text>
               </View>
               <Text style={styles.articleTitle}>{article.title || 'Untitled Article'}</Text>
               <Text style={styles.articleSource}>Source: {article.source || 'Unknown'}</Text>
