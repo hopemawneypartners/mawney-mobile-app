@@ -11,6 +11,7 @@ class ChatService {
     this.chats = [];
     this.messages = [];
     this.currentUser = null;
+    this.apiBaseUrl = 'https://mawney-daily-news-api.onrender.com';
   }
 
   // Initialize chat service
@@ -40,6 +41,9 @@ class ChatService {
   // Load all chats for current user
   async loadChats() {
     try {
+      // First try to load AI Assistant chats from server
+      await this.loadAIChatsFromServer();
+      
       // Load user's personal chats
       const chatsData = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser?.id}`);
       let userChats = [];
@@ -81,6 +85,41 @@ class ChatService {
     } catch (error) {
       console.error('Error loading chats:', error);
       this.chats = [];
+    }
+  }
+
+  // Load AI Assistant chats from server
+  async loadAIChatsFromServer() {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/chat/sessions`);
+      const data = await response.json();
+      
+      if (data.success && data.sessions) {
+        // Convert API format to local format for AI Assistant chats
+        const aiChats = data.sessions.map(session => ({
+          id: session.id,
+          name: session.name,
+          type: 'ai_assistant',
+          participants: [this.currentUser?.id],
+          lastMessage: null,
+          lastMessageTime: session.created_at,
+          unreadCount: 0,
+          isGroup: false
+        }));
+        
+        // Remove existing AI chats from local storage and add server ones
+        const existingChats = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser?.id}`);
+        if (existingChats) {
+          const parsedChats = JSON.parse(existingChats);
+          const nonAiChats = parsedChats.filter(chat => chat.type !== 'ai_assistant');
+          const updatedChats = [...nonAiChats, ...aiChats];
+          await AsyncStorage.setItem(`${CHAT_STORAGE_KEY}_${this.currentUser.id}`, JSON.stringify(updatedChats));
+        }
+        
+        console.log('📱 Loaded AI chats from server:', aiChats.length);
+      }
+    } catch (error) {
+      console.log('📱 Server AI chat load failed:', error.message);
     }
   }
 
@@ -154,6 +193,9 @@ class ChatService {
       const userMessages = messagesData ? JSON.parse(messagesData) : [];
       console.log('📥 Loaded user messages:', userMessages.length);
       
+      // Load AI Assistant messages from server
+      await this.loadAIMessagesFromServer();
+      
       // Load shared messages from all chats
       const sharedMessages = [];
       for (const chat of this.chats) {
@@ -177,6 +219,50 @@ class ChatService {
     } catch (error) {
       console.error('Error loading messages:', error);
       this.messages = [];
+    }
+  }
+
+  // Load AI Assistant messages from server
+  async loadAIMessagesFromServer() {
+    try {
+      // Load messages for each AI chat session
+      for (const chat of this.chats) {
+        if (chat.type === 'ai_assistant') {
+          const response = await fetch(`${this.apiBaseUrl}/api/chat/sessions/${chat.id}/conversations`);
+          const data = await response.json();
+          
+          if (data.success && data.conversations) {
+            // Convert API format to local format
+            const aiMessages = [];
+            data.conversations.forEach(conv => {
+              aiMessages.push({
+                id: conv.id,
+                chatId: chat.id,
+                senderId: this.currentUser.id,
+                text: conv.user_message,
+                timestamp: conv.timestamp,
+                type: 'text'
+              });
+              aiMessages.push({
+                id: conv.id + '_ai',
+                chatId: chat.id,
+                senderId: 'ai',
+                text: conv.ai_response,
+                timestamp: conv.timestamp,
+                type: 'text'
+              });
+            });
+            
+            // Save to local storage
+            const sharedKey = `shared_messages_${chat.id}`;
+            await AsyncStorage.setItem(sharedKey, JSON.stringify(aiMessages));
+            
+            console.log(`📥 Loaded ${aiMessages.length} AI messages for chat ${chat.id}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.log('📥 Server AI message load failed:', error.message);
     }
   }
 
