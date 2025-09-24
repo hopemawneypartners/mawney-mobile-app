@@ -413,8 +413,9 @@ export default function AIAssistantScreen() {
       const updatedJobAds = [...savedJobAds, jobAd];
       setSavedJobAds(updatedJobAds);
 
-      // Save to UserService
+      // Save to UserService (both local and server)
       await UserService.saveUserData('savedJobAds', updatedJobAds);
+      await UserService.saveUserSavedJobsToServer(updatedJobAds);
 
       Alert.alert('Saved!', 'Job ad saved successfully');
     } catch (error) {
@@ -444,8 +445,19 @@ export default function AIAssistantScreen() {
 
   const loadSavedJobAds = async () => {
     try {
-      const saved = await UserService.loadUserData('savedJobAds', []);
-      setSavedJobAds(saved);
+      // Load from server first
+      const serverJobAds = await UserService.loadUserSavedJobsFromServer();
+      if (serverJobAds && serverJobAds.length > 0) {
+        setSavedJobAds(serverJobAds);
+      } else {
+        // Fallback to local storage
+        const localJobAds = await UserService.loadUserData('savedJobAds', []);
+        setSavedJobAds(localJobAds);
+        // Sync to server
+        if (localJobAds.length > 0) {
+          await UserService.saveUserSavedJobsToServer(localJobAds);
+        }
+      }
     } catch (error) {
       console.error('Error loading saved job ads:', error);
     }
@@ -456,8 +468,9 @@ export default function AIAssistantScreen() {
       const updatedJobAds = savedJobAds.filter(jobAd => jobAd.id !== jobAdId);
       setSavedJobAds(updatedJobAds);
       
-      // Save to UserService
+      // Save to UserService (both local and server)
       await UserService.saveUserData('savedJobAds', updatedJobAds);
+      await UserService.saveUserSavedJobsToServer(updatedJobAds);
       
       Alert.alert('Deleted', 'Job ad removed successfully');
     } catch (error) {
@@ -485,8 +498,9 @@ export default function AIAssistantScreen() {
       );
       setSavedJobAds(updatedJobAds);
       
-      // Save to UserService
+      // Save to UserService (both local and server)
       await UserService.saveUserData('savedJobAds', updatedJobAds);
+      await UserService.saveUserSavedJobsToServer(updatedJobAds);
       
       setEditingJobAdId(null);
       setEditingJobAdName('');

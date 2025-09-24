@@ -39,18 +39,27 @@ export default function TodosScreen() {
 
   const loadTodos = async () => {
     try {
-      const todosData = await UserService.loadUserData('todos', []);
-      if (todosData && todosData.length > 0) {
-        setTodos(todosData);
+      // Load from server first
+      const serverTodos = await UserService.loadUserTodosFromServer();
+      if (serverTodos && serverTodos.length > 0) {
+        setTodos(serverTodos);
       } else {
-        // Initialize with default todos
-        const defaultTodos = [
-          { id: 1, text: 'Review Q4 credit reports', completed: false },
-          { id: 2, text: 'Schedule client calls', completed: false },
-          { id: 3, text: 'Update candidate profiles', completed: false },
-        ];
-        setTodos(defaultTodos);
-        await saveTodos(defaultTodos);
+        // Fallback to local storage
+        const localTodos = await UserService.loadUserData('todos', []);
+        if (localTodos && localTodos.length > 0) {
+          setTodos(localTodos);
+          // Sync to server
+          await UserService.saveUserTodosToServer(localTodos);
+        } else {
+          // Initialize with default todos
+          const defaultTodos = [
+            { id: 1, text: 'Review Q4 credit reports', completed: false },
+            { id: 2, text: 'Schedule client calls', completed: false },
+            { id: 3, text: 'Update candidate profiles', completed: false },
+          ];
+          setTodos(defaultTodos);
+          await saveTodos(defaultTodos);
+        }
       }
     } catch (error) {
       console.error('Error loading todos:', error);
@@ -59,7 +68,10 @@ export default function TodosScreen() {
 
   const saveTodos = async (todosToSave) => {
     try {
+      // Save to local storage
       await UserService.saveUserData('todos', todosToSave);
+      // Save to server
+      await UserService.saveUserTodosToServer(todosToSave);
     } catch (error) {
       console.error('Error saving todos:', error);
     }

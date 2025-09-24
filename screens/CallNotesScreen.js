@@ -88,8 +88,19 @@ export default function CallNotesScreen() {
 
   const loadCallNotes = async () => {
     try {
-      const notesData = await UserService.loadUserData('callNotes', []);
-      setCallNotes(notesData);
+      // Load from server first
+      const serverNotes = await UserService.loadUserCallNotesFromServer();
+      if (serverNotes && serverNotes.length > 0) {
+        setCallNotes(serverNotes);
+      } else {
+        // Fallback to local storage
+        const localNotes = await UserService.loadUserData('callNotes', []);
+        setCallNotes(localNotes);
+        // Sync to server
+        if (localNotes.length > 0) {
+          await UserService.saveUserCallNotesToServer(localNotes);
+        }
+      }
     } catch (error) {
       console.error('Error loading call notes:', error);
     }
@@ -97,7 +108,10 @@ export default function CallNotesScreen() {
 
   const saveCallNotes = async (notes) => {
     try {
+      // Save to local storage
       await UserService.saveUserData('callNotes', notes);
+      // Save to server
+      await UserService.saveUserCallNotesToServer(notes);
     } catch (error) {
       console.error('Error saving call notes:', error);
     }

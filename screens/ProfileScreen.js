@@ -47,14 +47,9 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
           name: currentUser.name,
           email: currentUser.email,
           role: 'Credit Executive Search',
-          department: 'Mawney Partners'
+          department: 'Mawney Partners',
+          avatar: currentUser.avatar // Load avatar from server-synced user data
         }));
-      }
-      
-      // Load avatar
-      const avatarData = await UserService.loadUserData('avatar');
-      if (avatarData) {
-        setUser(prev => ({ ...prev, avatar: avatarData }));
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -81,7 +76,14 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
       if (!result.canceled && result.assets[0]) {
         const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
         setUser(prev => ({ ...prev, avatar: base64Image }));
-        await UserService.saveUserData('avatar', base64Image);
+        
+        // Update user service with new avatar
+        const currentUser = UserService.getCurrentUser();
+        if (currentUser) {
+          currentUser.avatar = base64Image;
+          await UserService.saveCurrentUser();
+          await UserService.saveUserProfileToServer();
+        }
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to select profile picture. Please try again.');
