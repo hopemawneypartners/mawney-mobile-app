@@ -79,6 +79,7 @@ const USERS = [
 class UserService {
   constructor() {
     this.currentUser = null;
+    this.apiBaseUrl = 'https://mawney-daily-news-api.onrender.com';
   }
 
   // Get all available users
@@ -92,9 +93,37 @@ class UserService {
     if (user) {
       this.currentUser = user;
       await this.saveCurrentUser();
-      return { success: true, user };
+      
+      // Load user profile from server
+      await this.loadUserProfileFromServer();
+      
+      return { success: true, user: this.currentUser };
     }
     return { success: false, error: 'Invalid credentials' };
+  }
+
+  // Load user profile from server
+  async loadUserProfileFromServer() {
+    if (!this.currentUser) return;
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/profile?email=${encodeURIComponent(this.currentUser.email)}`);
+      const data = await response.json();
+      
+      if (data.success && data.profile) {
+        // Merge server profile with local user data
+        this.currentUser = {
+          ...this.currentUser,
+          ...data.profile,
+          // Keep local fields that aren't on server
+          id: this.currentUser.id,
+          password: this.currentUser.password
+        };
+        await this.saveCurrentUser();
+      }
+    } catch (error) {
+      console.error('Error loading user profile from server:', error);
+    }
   }
 
   // Get current user
@@ -115,6 +144,10 @@ class UserService {
       const userData = await AsyncStorage.getItem('currentUser');
       if (userData) {
         this.currentUser = JSON.parse(userData);
+        
+        // Load latest profile from server
+        await this.loadUserProfileFromServer();
+        
         return this.currentUser;
       }
     } catch (error) {
@@ -134,6 +167,36 @@ class UserService {
     if (this.currentUser) {
       this.currentUser.preferences = { ...this.currentUser.preferences, ...preferences };
       await this.saveCurrentUser();
+      
+      // Save to server
+      await this.saveUserProfileToServer();
+    }
+  }
+
+  // Save user profile to server
+  async saveUserProfileToServer() {
+    if (!this.currentUser) return;
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.currentUser.email,
+          name: this.currentUser.name,
+          avatar: this.currentUser.avatar,
+          preferences: this.currentUser.preferences
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('User profile saved to server successfully');
+      }
+    } catch (error) {
+      console.error('Error saving user profile to server:', error);
     }
   }
 
@@ -146,6 +209,132 @@ class UserService {
   // Get shared storage key (for AI memory)
   getSharedKey(key) {
     return `shared_${key}`;
+  }
+
+  // Save user todos to server
+  async saveUserTodosToServer(todos) {
+    if (!this.currentUser) return;
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/todos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.currentUser.email,
+          todos: todos
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('User todos saved to server successfully');
+      }
+    } catch (error) {
+      console.error('Error saving user todos to server:', error);
+    }
+  }
+
+  // Load user todos from server
+  async loadUserTodosFromServer() {
+    if (!this.currentUser) return [];
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/todos?email=${encodeURIComponent(this.currentUser.email)}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.todos || [];
+      }
+    } catch (error) {
+      console.error('Error loading user todos from server:', error);
+    }
+    return [];
+  }
+
+  // Save user call notes to server
+  async saveUserCallNotesToServer(callNotes) {
+    if (!this.currentUser) return;
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/call-notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.currentUser.email,
+          call_notes: callNotes
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('User call notes saved to server successfully');
+      }
+    } catch (error) {
+      console.error('Error saving user call notes to server:', error);
+    }
+  }
+
+  // Load user call notes from server
+  async loadUserCallNotesFromServer() {
+    if (!this.currentUser) return [];
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/call-notes?email=${encodeURIComponent(this.currentUser.email)}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.call_notes || [];
+      }
+    } catch (error) {
+      console.error('Error loading user call notes from server:', error);
+    }
+    return [];
+  }
+
+  // Save user saved jobs to server
+  async saveUserSavedJobsToServer(savedJobs) {
+    if (!this.currentUser) return;
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/saved-jobs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.currentUser.email,
+          saved_jobs: savedJobs
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('User saved jobs saved to server successfully');
+      }
+    } catch (error) {
+      console.error('Error saving user saved jobs to server:', error);
+    }
+  }
+
+  // Load user saved jobs from server
+  async loadUserSavedJobsFromServer() {
+    if (!this.currentUser) return [];
+    
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user/saved-jobs?email=${encodeURIComponent(this.currentUser.email)}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.saved_jobs || [];
+      }
+    } catch (error) {
+      console.error('Error loading user saved jobs from server:', error);
+    }
+    return [];
   }
 
   // Save user-specific data
