@@ -580,6 +580,20 @@ export default function ArticlesScreen() {
             }}>
               <Text style={styles.refreshButtonText}>Test API</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={[styles.refreshButton, { backgroundColor: '#4CAF50', marginTop: 10 }]} onPress={async () => {
+              console.log('🧪 TESTING ARTICLES API...');
+              try {
+                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/articles');
+                const data = await response.json();
+                console.log('🧪 ARTICLES API RESULT:', data);
+                Alert.alert('Articles Test', `Found ${data.articles?.length || 0} articles. Success: ${data.success}`);
+              } catch (error) {
+                console.error('🧪 ARTICLES API ERROR:', error);
+                Alert.alert('Articles Test', `Error: ${error.message}`);
+              }
+            }}>
+              <Text style={styles.refreshButtonText}>Test Articles</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           sortedArticles.map((article, index) => (
