@@ -45,6 +45,13 @@ export default function DailySummary({ articles }) {
 
   // Auto-generate summary when articles are cleared and ready
   useEffect(() => {
+    console.log('📊 DailySummary useEffect triggered:', {
+      articlesCount: articles?.length || 0,
+      isConfigured,
+      hasSummary: !!summary,
+      loading
+    });
+    
     if (articles && articles.length > 0 && isConfigured && !summary && !loading) {
       console.log('📊 Auto-generating summary for new articles');
       generateSummary();
