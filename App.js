@@ -15,7 +15,7 @@ import ChatNotificationService from './services/chatNotificationService';
 // Import screens
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
-import ArticlesScreen from './screens/ArticlesScreenSimple';
+import ArticlesScreen from './screens/ArticlesScreen';
 import TodosScreen from './screens/TodosScreen';
 import CallNotesScreen from './screens/CallNotesScreen';
 import AIAssistantScreen from './screens/AIAssistantScreen';
