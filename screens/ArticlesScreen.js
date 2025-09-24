@@ -198,6 +198,7 @@ export default function ArticlesScreen() {
       console.log('📊 Articles count:', data.articles ? data.articles.length : 0);
       console.log('📊 Data success:', data.success);
       console.log('📊 First article:', data.articles?.[0]);
+      console.log('📊 All articles:', data.articles);
       
             if (data.success) {
               console.log('✅ Setting articles:', data.articles?.length || 0);
@@ -260,6 +261,15 @@ export default function ArticlesScreen() {
       const matchesCategory = selectedCategory === 'All' || 
         (article.category && article.category.toLowerCase() === selectedCategory.toLowerCase());
       
+      console.log('🔍 Filtering article:', {
+        title: article.title?.slice(0, 30),
+        category: article.category,
+        selectedCategory,
+        matchesCategory,
+        searchQuery,
+        matchesSearch
+      });
+      
       // Safe date filtering
       let matchesDate = true;
       if (article.publishedAt || article.published_date || article.timestamp || article.date) {
@@ -305,7 +315,16 @@ export default function ArticlesScreen() {
         }
       }
       
-      return matchesSearch && matchesCategory && matchesDate;
+      const finalMatch = matchesSearch && matchesCategory && matchesDate;
+      console.log('🔍 Final filter result:', {
+        title: article.title?.slice(0, 30),
+        matchesSearch,
+        matchesCategory,
+        matchesDate,
+        finalMatch
+      });
+      
+      return finalMatch;
     } catch (error) {
       console.warn('Filter error for article:', article, error);
       return false; // Exclude problematic articles
