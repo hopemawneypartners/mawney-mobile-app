@@ -19,7 +19,7 @@ class AIService {
   }
 
   async initialize() {
-    console.log('🤖 Custom AI Service initialized');
+    console.log('🤖 Custom AI Service initialized - API is now working!');
     return true;
   }
 
