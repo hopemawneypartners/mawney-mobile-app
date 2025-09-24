@@ -251,6 +251,12 @@ export default function ArticlesScreen() {
 
   const categories = ['All', 'Market Moves', 'People Moves', 'Regulatory', 'Industry News'];
 
+  console.log('🔍 RAW ARTICLES BEFORE FILTERING:', articles);
+  console.log('🔍 ARTICLES COUNT:', articles.length);
+  console.log('🔍 SEARCH QUERY:', searchQuery);
+  console.log('🔍 SELECTED CATEGORY:', selectedCategory);
+  console.log('🔍 SELECTED DATE FILTER:', selectedDateFilter);
+
   const filteredArticles = articles.filter(article => {
     try {
       // Safe search matching
@@ -331,6 +337,9 @@ export default function ArticlesScreen() {
       return false; // Exclude problematic articles
     }
   });
+
+  console.log('🔍 FILTERED ARTICLES COUNT:', filteredArticles.length);
+  console.log('🔍 FILTERED ARTICLES:', filteredArticles);
 
   // Sort articles by date
   const sortedArticles = [...filteredArticles].sort((a, b) => {
