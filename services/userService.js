@@ -5,8 +5,8 @@ const USERS = [
   {
     id: 'hope_gilbert',
     name: 'Hope Gilbert',
-    email: 'hope@mawneypartners.com',
-    password: 'Denmead100',
+    email: 'hg@mawneypartners.com',
+    password: 'Hunter1972',
     avatar: 'https://ui-avatars.com/api/?name=Hope+Gilbert&background=004b35&color=ffffff&size=100',
     preferences: {
       notifications: true,
