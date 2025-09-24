@@ -155,6 +155,20 @@ export default function DailySummary({ articles }) {
             <TouchableOpacity style={styles.refreshButton} onPress={forceRefreshSummary}>
               <Text style={styles.refreshButtonText}>Refresh Analysis</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={[styles.refreshButton, { backgroundColor: '#4CAF50', marginTop: 10 }]} onPress={async () => {
+              console.log('🧪 TESTING AI SUMMARY API...');
+              try {
+                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/ai/summary');
+                const data = await response.json();
+                console.log('🧪 AI SUMMARY API RESULT:', data);
+                Alert.alert('AI Summary Test', `Success: ${data.success}. Summary: ${data.summary?.executive_summary?.slice(0, 100)}...`);
+              } catch (error) {
+                console.error('🧪 AI SUMMARY API ERROR:', error);
+                Alert.alert('AI Summary Test', `Error: ${error.message}`);
+              }
+            }}>
+              <Text style={styles.refreshButtonText}>Test AI Summary</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       )}
