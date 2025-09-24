@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Mawney Partners",
-    "slug": "mawney-partners-app",
+    "slug": "mp-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -29,6 +29,9 @@
         "UIBackgroundModes": [
           "background-fetch",
           "background-processing",
+          "remote-notification",
+          "background-fetch",
+          "background-processing",
           "remote-notification"
         ]
       }
@@ -51,6 +54,16 @@
         "android.permission.VIBRATE",
         "android.permission.WAKE_LOCK",
         "android.permission.FOREGROUND_SERVICE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.FOREGROUND_SERVICE",
         "android.permission.POST_NOTIFICATIONS"
       ]
     },
@@ -62,6 +75,12 @@
         "projectId": "ed6cfb91-a8de-4c5a-9da1-4f614d213797"
       }
     },
-    "owner": "hopegilbert"
+    "owner": "hopegilbert",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ed6cfb91-a8de-4c5a-9da1-4f614d213797"
+    }
   }
 }
