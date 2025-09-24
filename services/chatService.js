@@ -44,7 +44,10 @@ class ChatService {
       // First try to load AI Assistant chats from server
       await this.loadAIChatsFromServer();
       
-      // Load user's personal chats
+      // Load user-to-user chats from server
+      await this.loadUserChatsFromServer();
+      
+      // Load user's personal chats from local storage (fallback)
       const chatsData = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser?.id}`);
       let userChats = [];
       
@@ -123,6 +126,38 @@ class ChatService {
     }
   }
 
+  // Load user-to-user chats from server
+  async loadUserChatsFromServer() {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/api/user-chats?email=${encodeURIComponent(this.currentUser.email)}`);
+      const data = await response.json();
+      
+      if (data.success && data.chats) {
+        // Filter out AI chats and group chats, only get user-to-user chats
+        const userToUserChats = data.chats.filter(chat => 
+          chat.type !== 'ai_assistant' && chat.type !== 'group'
+        );
+        
+        if (userToUserChats.length > 0) {
+          // Remove existing user-to-user chats from local storage and add server ones
+          const existingChats = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser?.id}`);
+          if (existingChats) {
+            const parsedChats = JSON.parse(existingChats);
+            const nonUserChats = parsedChats.filter(chat => 
+              chat.type === 'ai_assistant' || chat.type === 'group'
+            );
+            const updatedChats = [...nonUserChats, ...userToUserChats];
+            await AsyncStorage.setItem(`${CHAT_STORAGE_KEY}_${this.currentUser.id}`, JSON.stringify(updatedChats));
+          }
+          
+          console.log('📱 Loaded user-to-user chats from server:', userToUserChats.length);
+        }
+      }
+    } catch (error) {
+      console.log('📱 Server user chat load failed:', error.message);
+    }
+  }
+
   // Load shared group chats that this user should be part of
   async loadSharedGroupChats() {
     try {
@@ -196,6 +231,9 @@ class ChatService {
       // Load AI Assistant messages from server
       await this.loadAIMessagesFromServer();
       
+      // Load user-to-user messages from server
+      await this.loadUserMessagesFromServer();
+      
       // Load shared messages from all chats
       const sharedMessages = [];
       for (const chat of this.chats) {
@@ -266,27 +304,128 @@ class ChatService {
     }
   }
 
+  // Load user-to-user messages from server
+  async loadUserMessagesFromServer() {
+    try {
+      // Load messages for each user-to-user chat
+      for (const chat of this.chats) {
+        if (chat.type !== 'ai_assistant' && chat.type !== 'group') {
+          const response = await fetch(`${this.apiBaseUrl}/api/user-messages?chat_id=${chat.id}`);
+          const data = await response.json();
+          
+          if (data.success && data.messages) {
+            // Save to local storage
+            const sharedKey = `shared_messages_${chat.id}`;
+            await AsyncStorage.setItem(sharedKey, JSON.stringify(data.messages));
+            
+            console.log(`📥 Loaded ${data.messages.length} user messages for chat ${chat.id}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.log('📥 Server user message load failed:', error.message);
+    }
+  }
+
   // Save chats to storage
   async saveChats() {
     try {
+      // Save to local storage
       await AsyncStorage.setItem(
         `${CHAT_STORAGE_KEY}_${this.currentUser?.id}`,
         JSON.stringify(this.chats)
       );
+      
+      // Save user-to-user chats to server
+      await this.saveUserChatsToServer();
     } catch (error) {
       console.error('Error saving chats:', error);
+    }
+  }
+
+  // Save user-to-user chats to server
+  async saveUserChatsToServer() {
+    try {
+      // Filter out AI chats and group chats, only save user-to-user chats
+      const userToUserChats = this.chats.filter(chat => 
+        chat.type !== 'ai_assistant' && chat.type !== 'group'
+      );
+      
+      if (userToUserChats.length > 0) {
+        const response = await fetch(`${this.apiBaseUrl}/api/user-chats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: this.currentUser.email,
+            chats: userToUserChats
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          console.log('📤 Saved user-to-user chats to server:', userToUserChats.length);
+        }
+      }
+    } catch (error) {
+      console.log('📤 Server user chat save failed:', error.message);
     }
   }
 
   // Save messages to storage
   async saveMessages() {
     try {
+      // Save to local storage
       await AsyncStorage.setItem(
         `${MESSAGES_STORAGE_KEY}_${this.currentUser?.id}`,
         JSON.stringify(this.messages)
       );
+      
+      // Save user-to-user messages to server
+      await this.saveUserMessagesToServer();
     } catch (error) {
       console.error('Error saving messages:', error);
+    }
+  }
+
+  // Save user-to-user messages to server
+  async saveUserMessagesToServer() {
+    try {
+      // Group messages by chat ID
+      const messagesByChat = {};
+      this.messages.forEach(message => {
+        if (message.chatId && !messagesByChat[message.chatId]) {
+          messagesByChat[message.chatId] = [];
+        }
+        if (message.chatId) {
+          messagesByChat[message.chatId].push(message);
+        }
+      });
+      
+      // Save messages for each user-to-user chat
+      for (const [chatId, messages] of Object.entries(messagesByChat)) {
+        const chat = this.chats.find(c => c.id === chatId);
+        if (chat && chat.type !== 'ai_assistant' && chat.type !== 'group') {
+          const response = await fetch(`${this.apiBaseUrl}/api/user-messages`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              messages: messages
+            })
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            console.log(`📤 Saved ${messages.length} messages to server for chat ${chatId}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.log('📤 Server user message save failed:', error.message);
     }
   }
 
