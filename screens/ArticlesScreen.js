@@ -557,6 +557,20 @@ export default function ArticlesScreen() {
             <TouchableOpacity style={[styles.refreshButton, { backgroundColor: colors.accent, marginTop: 10 }]} onPress={checkForNewArticles}>
               <Text style={styles.refreshButtonText}>Check for New Articles</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={[styles.refreshButton, { backgroundColor: '#ff6b6b', marginTop: 10 }]} onPress={async () => {
+              console.log('🧪 TESTING API CONNECTION...');
+              try {
+                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/health');
+                const data = await response.json();
+                console.log('🧪 API TEST RESULT:', data);
+                Alert.alert('API Test', `API is working! Status: ${data.status}`);
+              } catch (error) {
+                console.error('🧪 API TEST ERROR:', error);
+                Alert.alert('API Test', `API Error: ${error.message}`);
+              }
+            }}>
+              <Text style={styles.refreshButtonText}>Test API</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           sortedArticles.map((article, index) => (
