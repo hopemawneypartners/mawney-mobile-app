@@ -70,15 +70,11 @@ class AIService {
       
       console.log('🤖 Sending request to AI API...');
       console.log('🤖 Articles being sent to AI:', past24Hours.slice(0, 2).map(a => ({ title: a.title, category: a.category })));
-      const response = await fetch(`${this.apiBaseUrl}/api/ai-assistant`, {
-        method: 'POST',
+      const response = await fetch(`${this.apiBaseUrl}/api/ai/summary`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          query: query,
-          context: { articles: past24Hours }
-        }),
       });
 
       console.log('🤖 AI API response status:', response.status);
@@ -88,18 +84,25 @@ class AIService {
 
       const data = await response.json();
       console.log('🤖 AI API response received:', data);
-      console.log('🤖 AI response text:', data.response?.text?.substring(0, 100) + '...');
       
       if (!data.success) {
         throw new Error(data.error || 'AI service error');
       }
 
-      const aiResponse = data.response;
+      const aiResponse = data.summary;
       
       console.log('🤖 AI Response:', aiResponse);
       
-      // Parse the structured response
-      const summary = this.parseStructuredResponse(aiResponse.text);
+      // The new API returns structured data directly
+      const summary = {
+        summary: aiResponse.executive_summary,
+        keyPoints: aiResponse.key_points || [],
+        marketInsights: aiResponse.market_insights ? 
+          (Array.isArray(aiResponse.market_insights) ? 
+            aiResponse.market_insights.join(' ') : 
+            aiResponse.market_insights) : 
+          'No market insights available'
+      };
       
       console.log('📊 Parsed Summary:', summary);
       console.log('✅ Daily summary generated successfully');
