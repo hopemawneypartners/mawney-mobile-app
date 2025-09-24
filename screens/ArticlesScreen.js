@@ -212,28 +212,7 @@ export default function ArticlesScreen() {
             }
     } catch (error) {
       console.error('❌ Error loading articles:', error);
-      
-      // Show sample articles if API fails
-      const sampleArticles = [
-        {
-          id: 'sample1',
-          title: 'Credit Market Update - Sample Article',
-          content: 'This is a sample article. The API connection may be having issues.',
-          source: 'Sample Source',
-          published_date: new Date().toISOString(),
-          link: '#'
-        },
-        {
-          id: 'sample2', 
-          title: 'Private Credit Trends - Sample Article',
-          content: 'Another sample article to show when the API is unavailable.',
-          source: 'Sample Source',
-          published_date: new Date().toISOString(),
-          link: '#'
-        }
-      ];
-      
-      setArticles(sampleArticles);
+      setArticles([]);
       
       let errorMessage = 'Unable to load articles. Please check:';
       let errorDetails = '';
