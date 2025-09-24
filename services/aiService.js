@@ -19,7 +19,7 @@ class AIService {
   }
 
   async initialize() {
-    console.log('🤖 Custom AI Service initialized - API is now working!');
+    console.log('🤖 Custom AI Service initialized - API is now working! - FORCE REFRESH 3.3');
     return true;
   }
 
@@ -41,7 +41,7 @@ class AIService {
       // Filter articles from past 24 hours
       const now = new Date();
       const past24Hours = articles.filter(article => {
-        const articleDate = new Date(article.publishedAt || article.published_date || article.timestamp);
+        const articleDate = new Date(article.publishedAt || article.published_date || article.timestamp || article.date);
         const timeDiff = now - articleDate;
         const hoursDiff = timeDiff / (1000 * 60 * 60);
         console.log('🤖 Article date check:', {
@@ -49,7 +49,8 @@ class AIService {
           articleDate: articleDate.toISOString(),
           now: now.toISOString(),
           hoursDiff: hoursDiff.toFixed(2),
-          isWithin24h: hoursDiff <= 24
+          isWithin24h: hoursDiff <= 24,
+          dateField: article.date || article.publishedAt || article.published_date || article.timestamp
         });
         return hoursDiff <= 24;
       });
@@ -144,7 +145,12 @@ class AIService {
       }
 
       console.log('✅ AI query processed successfully');
-      return data.response;
+      return {
+        text: data.text,
+        type: data.type,
+        confidence: data.confidence,
+        actions: data.actions || []
+      };
       
     } catch (error) {
       console.error('❌ Error processing AI query:', error);
@@ -182,7 +188,12 @@ class AIService {
       }
 
       console.log('✅ File learning completed successfully');
-      return data.response;
+      return {
+        text: data.text,
+        type: data.type,
+        confidence: data.confidence,
+        actions: data.actions || []
+      };
       
     } catch (error) {
       console.error('❌ Error learning from file:', error);
