@@ -43,7 +43,7 @@ export default function DailySummary({ articles }) {
     }
   }, [articles, isConfigured]);
 
-  // Auto-generate summary when articles are cleared and ready
+  // Auto-generate summary when articles are available
   useEffect(() => {
     console.log('📊 DailySummary useEffect triggered:', {
       articlesCount: articles?.length || 0,
@@ -52,11 +52,12 @@ export default function DailySummary({ articles }) {
       loading
     });
     
-    if (articles && articles.length > 0 && isConfigured && !summary && !loading) {
-      console.log('📊 Auto-generating summary for new articles');
+    // Always try to generate summary when articles are available
+    if (articles && articles.length > 0 && isConfigured && !loading) {
+      console.log('📊 Auto-generating summary for articles');
       generateSummary();
     }
-  }, [articles, isConfigured, summary, loading, generateSummary]);
+  }, [articles, isConfigured, loading, generateSummary]);
 
   const checkConfiguration = async () => {
     const configured = await AIService.initialize();
