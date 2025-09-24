@@ -53,11 +53,11 @@ export default function DailySummary({ articles }) {
     });
     
     // Always try to generate summary when articles are available
-    if (articles && articles.length > 0 && isConfigured && !loading) {
-      console.log('📊 Auto-generating summary for articles');
+    if (articles && articles.length > 0 && isConfigured && !loading && !summary) {
+      console.log('📊 Auto-generating summary for articles - FORCE REFRESH 3.3');
       generateSummary();
     }
-  }, [articles, isConfigured, loading, generateSummary]);
+  }, [articles, isConfigured, loading, summary, generateSummary]);
 
   const checkConfiguration = async () => {
     const configured = await AIService.initialize();
@@ -66,7 +66,7 @@ export default function DailySummary({ articles }) {
 
   const generateSummary = useCallback(async () => {
     console.log('🔄 Generating summary with', articles?.length || 0, 'articles');
-    console.log('🔄 FORCE REFRESH - AI Summary should work now!');
+    console.log('🔄 FORCE REFRESH 3.2 - AI Summary should work now!');
     console.log('🔄 Articles being passed to AI:', articles);
     setLoading(true);
     setError(null);
