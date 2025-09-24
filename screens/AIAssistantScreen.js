@@ -89,7 +89,7 @@ export default function AIAssistantScreen() {
 
   const loadChatSessions = async () => {
     try {
-        const response = await fetch('https://mawney-daily-news-api.onrender.com/api/chat/sessions');
+      const response = await fetch('https://mawney-daily-news-api.onrender.com/api/chat/sessions');
       const data = await response.json();
       if (data.success) {
         setChatSessions(data.sessions);
@@ -106,7 +106,7 @@ export default function AIAssistantScreen() {
     }
 
     try {
-        const response = await fetch('https://mawney-daily-news-api.onrender.com/api/chat/sessions', {
+      const response = await fetch('https://mawney-daily-news-api.onrender.com/api/chat/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newChatName.trim() })
@@ -118,6 +118,9 @@ export default function AIAssistantScreen() {
         setShowNewChatModal(false);
         loadChatSessions();
         switchToChat(data.chat_id);
+        Alert.alert('Success', 'New chat created successfully!');
+      } else {
+        Alert.alert('Error', data.error || 'Failed to create new chat');
       }
     } catch (error) {
       console.error('Error creating chat:', error);
@@ -127,7 +130,7 @@ export default function AIAssistantScreen() {
 
   const switchToChat = async (chatId) => {
     try {
-        const response = await fetch('https://mawney-daily-news-api.onrender.com/api/chat/current', {
+      const response = await fetch('https://mawney-daily-news-api.onrender.com/api/chat/current', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId })
@@ -145,13 +148,30 @@ export default function AIAssistantScreen() {
 
   const loadChatConversations = async (chatId) => {
     try {
-        const response = await fetch(`https://mawney-daily-news-api.onrender.com/api/chat/sessions/${chatId}/conversations`);
+      const response = await fetch(`https://mawney-daily-news-api.onrender.com/api/chat/sessions/${chatId}/conversations`);
       const data = await response.json();
       if (data.success) {
-        setResponses(data.conversations);
+        // Convert API format to local format
+        const formattedResponses = [];
+        data.conversations.forEach(conv => {
+          formattedResponses.push({
+            id: conv.id,
+            type: 'user',
+            text: conv.user_message,
+            timestamp: new Date(conv.timestamp)
+          });
+          formattedResponses.push({
+            id: conv.id + '_ai',
+            type: 'ai',
+            text: conv.ai_response,
+            timestamp: new Date(conv.timestamp)
+          });
+        });
+        setResponses(formattedResponses);
       }
     } catch (error) {
       console.error('Error loading conversations:', error);
+      setResponses([]);
     }
   };
 
@@ -180,6 +200,9 @@ export default function AIAssistantScreen() {
                 if (currentChatId === chatId) {
                   switchToChat('default');
                 }
+                Alert.alert('Success', 'Chat deleted successfully');
+              } else {
+                Alert.alert('Error', 'Failed to delete chat');
               }
             } catch (error) {
               console.error('Error deleting chat:', error);
@@ -240,6 +263,20 @@ export default function AIAssistantScreen() {
       
       setResponses(updatedResponses);
       
+      // Save conversation to API
+      try {
+        await fetch(`https://mawney-daily-news-api.onrender.com/api/chat/sessions/${currentChatId}/conversations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_message: userQuery,
+            ai_response: aiResponse.text
+          })
+        });
+      } catch (error) {
+        console.error('Error saving conversation to API:', error);
+      }
+      
     } catch (error) {
       console.error('Error processing query:', error);
       const errorResponses = [...newResponses, {
@@ -251,6 +288,20 @@ export default function AIAssistantScreen() {
         timestamp: new Date()
       }];
       setResponses(errorResponses);
+      
+      // Save error conversation to API
+      try {
+        await fetch(`https://mawney-daily-news-api.onrender.com/api/chat/sessions/${currentChatId}/conversations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_message: userQuery,
+            ai_response: 'I apologize, but I encountered an error processing your request. Please try again.'
+          })
+        });
+      } catch (error) {
+        console.error('Error saving error conversation to API:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -312,7 +363,22 @@ export default function AIAssistantScreen() {
         text: `📄 Uploaded and learned from: ${file.name}\n\n${aiResponse.text}`,
         timestamp: new Date()
       };
-      setResponses(prev => [...prev, fileMessage]);
+      const updatedResponses = [...responses, fileMessage];
+      setResponses(updatedResponses);
+      
+      // Save file upload conversation to API
+      try {
+        await fetch(`https://mawney-daily-news-api.onrender.com/api/chat/sessions/${currentChatId}/conversations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_message: `📄 File uploaded: ${file.name}`,
+            ai_response: `📄 Uploaded and learned from: ${file.name}\n\n${aiResponse.text}`
+          })
+        });
+      } catch (error) {
+        console.error('Error saving file conversation to API:', error);
+      }
       
     } catch (error) {
       console.error('Error processing file:', error);
