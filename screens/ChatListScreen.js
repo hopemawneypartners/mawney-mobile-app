@@ -45,9 +45,18 @@ export default function ChatListScreen({ navigation }) {
     initializeChats();
     
     // Listen for polling updates to refresh chat list
-    const handlePollingUpdate = () => {
-      console.log('📱 ChatListScreen - Polling update received, refreshing chats');
-      loadChats();
+    const handlePollingUpdate = (event, data) => {
+      console.log('📱 ChatListScreen - Polling update received:', event, data);
+      
+      if (event === 'new_message') {
+        console.log(`📱 New message in chat ${data.chatId}, refreshing chat list`);
+        // Refresh chats to show updated unread counts
+        loadChats();
+      } else if (event === 'polling_update') {
+        console.log('📱 General polling update, refreshing chat list');
+        // Refresh chats to show any updates
+        loadChats();
+      }
     };
     
     ChatPollingService.addListener(handlePollingUpdate);

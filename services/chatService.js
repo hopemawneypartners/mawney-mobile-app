@@ -336,7 +336,19 @@ class ChatService {
             const sharedKey = `shared_messages_${chat.id}`;
             await AsyncStorage.setItem(sharedKey, JSON.stringify(data.messages));
             
-            console.log(`✅ Loaded ${data.messages.length} user messages for chat ${chat.id}`);
+            // Update unread count for this chat
+            const unreadCount = data.messages.filter(msg => 
+              msg.senderId !== this.currentUser.id && 
+              (!msg.readBy || !msg.readBy.includes(this.currentUser.id))
+            ).length;
+            
+            // Update chat unread count
+            if (!chat.unreadCounts) {
+              chat.unreadCounts = {};
+            }
+            chat.unreadCounts[this.currentUser.id] = unreadCount;
+            
+            console.log(`✅ Loaded ${data.messages.length} user messages for chat ${chat.id}, ${unreadCount} unread`);
           } else {
             console.log(`⚠️ No messages found for chat ${chat.id}`);
           }
@@ -344,6 +356,9 @@ class ChatService {
           console.log(`⏭️ Skipping chat ${chat.id} (type: ${chat.type})`);
         }
       }
+      
+      // Save updated chat data with unread counts
+      await this.saveChats();
     } catch (error) {
       console.error('❌ Server user message load failed:', error);
     }

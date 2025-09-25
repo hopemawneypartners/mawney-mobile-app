@@ -40,17 +40,30 @@ class ChatPollingService {
   // Check for new messages
   async checkForNewMessages() {
     try {
-      // Get all chats and check for new messages
+      console.log('📱 Polling for new messages...');
+      
+      // Load new messages from server for all user-to-user chats
       const chats = ChatService.getChats();
       let hasNewMessages = false;
       
       for (const chat of chats) {
-        // Check if there are any unread messages
-        const unreadCount = ChatService.getUnreadCount(chat.id);
-        if (unreadCount > 0) {
-          hasNewMessages = true;
-          // Notify listeners about new messages in this chat
-          this.notifyListeners('new_message', { chatId: chat.id });
+        // Only poll user-to-user chats (not AI assistant or group chats)
+        if (chat.type !== 'ai_assistant' && chat.type !== 'group') {
+          try {
+            // Load messages from server for this chat
+            await ChatService.loadUserMessagesFromServer();
+            
+            // Check if there are any unread messages after loading from server
+            const unreadCount = ChatService.getUnreadCount(chat.id);
+            if (unreadCount > 0) {
+              hasNewMessages = true;
+              console.log(`📱 New messages in chat ${chat.name}: ${unreadCount} unread`);
+              // Notify listeners about new messages in this chat
+              this.notifyListeners('new_message', { chatId: chat.id, unreadCount });
+            }
+          } catch (chatError) {
+            console.error(`❌ Error polling chat ${chat.name}:`, chatError);
+          }
         }
       }
       
