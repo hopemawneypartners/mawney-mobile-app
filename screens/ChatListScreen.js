@@ -74,7 +74,13 @@ export default function ChatListScreen({ navigation }) {
   // Refresh chats when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log('📱 ChatListScreen - Screen focused, refreshing chats');
+      console.log('📱 ChatListScreen - Screen focused, refreshing chats and avatars');
+      
+      // Refresh avatars in background (non-blocking)
+      UserService.refreshAllUserAvatars().catch(error => {
+        console.log('Background avatar refresh failed:', error.message);
+      });
+      
       loadChats();
     }, [])
   );
@@ -83,6 +89,11 @@ export default function ChatListScreen({ navigation }) {
     try {
       setLoading(true);
       await ChatService.initialize();
+      
+      // Refresh all user avatars from server to ensure we have the latest profile pictures
+      console.log('🔄 Refreshing all user avatars for chat list...');
+      await UserService.refreshAllUserAvatars();
+      
       loadChats();
     } catch (error) {
       console.error('Error initializing chats:', error);
@@ -132,6 +143,11 @@ export default function ChatListScreen({ navigation }) {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    
+    // Refresh all user avatars from server
+    console.log('🔄 Pull-to-refresh: Refreshing all user avatars...');
+    await UserService.refreshAllUserAvatars();
+    
     loadChats();
     setRefreshing(false);
   }, []);

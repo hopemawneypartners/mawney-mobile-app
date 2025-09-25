@@ -401,10 +401,31 @@ class UserService {
   // Get actual uploaded avatar for a user
   async getActualAvatar(userId) {
     try {
+      // First try to get from local storage
       const userKey = `${userId}_avatar`;
       const avatarData = await AsyncStorage.getItem(userKey);
       if (avatarData) {
         return JSON.parse(avatarData);
+      }
+      
+      // If not found locally, try to load from server
+      const user = this.getUsers().find(u => u.id === userId);
+      if (user) {
+        console.log(`🌐 Loading avatar from server for user: ${user.name} (${user.email})`);
+        
+        const response = await fetch(`${this.apiBaseUrl}/api/user/profile?email=${encodeURIComponent(user.email)}`);
+        const data = await response.json();
+        
+        if (data.success && data.profile && data.profile.avatar) {
+          console.log(`✅ Loaded avatar from server for ${user.name}, length: ${data.profile.avatar.length}`);
+          
+          // Cache the avatar locally for future use
+          await AsyncStorage.setItem(userKey, JSON.stringify(data.profile.avatar));
+          
+          return data.profile.avatar;
+        } else {
+          console.log(`⚠️ No avatar found on server for ${user.name}`);
+        }
       }
     } catch (error) {
       console.error(`Error loading avatar for user ${userId}:`, error);
@@ -426,6 +447,43 @@ class UserService {
     }
     
     return usersWithAvatars;
+  }
+
+  // Refresh all user avatars from server (for chat list)
+  async refreshAllUserAvatars() {
+    try {
+      console.log('🔄 Refreshing all user avatars from server...');
+      
+      const users = this.getUsers();
+      const refreshPromises = users.map(async (user) => {
+        try {
+          const response = await fetch(`${this.apiBaseUrl}/api/user/profile?email=${encodeURIComponent(user.email)}`);
+          const data = await response.json();
+          
+          if (data.success && data.profile && data.profile.avatar) {
+            // Cache the avatar locally
+            const userKey = `${user.id}_avatar`;
+            await AsyncStorage.setItem(userKey, JSON.stringify(data.profile.avatar));
+            console.log(`✅ Refreshed avatar for ${user.name}`);
+            return { userId: user.id, avatar: data.profile.avatar };
+          } else {
+            console.log(`⚠️ No avatar on server for ${user.name}`);
+            return { userId: user.id, avatar: null };
+          }
+        } catch (error) {
+          console.error(`❌ Error refreshing avatar for ${user.name}:`, error);
+          return { userId: user.id, avatar: null };
+        }
+      });
+      
+      const results = await Promise.all(refreshPromises);
+      console.log('🔄 Avatar refresh complete:', results.length, 'users processed');
+      
+      return results;
+    } catch (error) {
+      console.error('❌ Error refreshing all user avatars:', error);
+      return [];
+    }
   }
 
   // Clear all user data (for logout)
