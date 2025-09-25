@@ -313,23 +313,39 @@ class ChatService {
   // Load user-to-user messages from server
   async loadUserMessagesFromServer() {
     try {
+      console.log('📥 Starting loadUserMessagesFromServer...');
+      console.log('📥 Total chats to check:', this.chats.length);
+      
       // Load messages for each user-to-user chat
       for (const chat of this.chats) {
+        console.log(`📥 Checking chat ${chat.id} (type: ${chat.type})`);
+        
         if (chat.type !== 'ai_assistant' && chat.type !== 'group') {
+          console.log(`📥 Loading messages for user-to-user chat ${chat.id}`);
+          
           const response = await fetch(`${this.apiBaseUrl}/api/user-messages?chat_id=${chat.id}`);
           const data = await response.json();
+          
+          console.log(`📥 Server response for chat ${chat.id}:`, {
+            success: data.success,
+            messageCount: data.messages?.length || 0
+          });
           
           if (data.success && data.messages) {
             // Save to local storage
             const sharedKey = `shared_messages_${chat.id}`;
             await AsyncStorage.setItem(sharedKey, JSON.stringify(data.messages));
             
-            console.log(`📥 Loaded ${data.messages.length} user messages for chat ${chat.id}`);
+            console.log(`✅ Loaded ${data.messages.length} user messages for chat ${chat.id}`);
+          } else {
+            console.log(`⚠️ No messages found for chat ${chat.id}`);
           }
+        } else {
+          console.log(`⏭️ Skipping chat ${chat.id} (type: ${chat.type})`);
         }
       }
     } catch (error) {
-      console.log('📥 Server user message load failed:', error.message);
+      console.error('❌ Server user message load failed:', error);
     }
   }
 
@@ -398,6 +414,10 @@ class ChatService {
   // Save user-to-user messages to server
   async saveUserMessagesToServer() {
     try {
+      console.log('📤 Starting saveUserMessagesToServer...');
+      console.log('📤 Total messages:', this.messages.length);
+      console.log('📤 Total chats:', this.chats.length);
+      
       // Group messages by chat ID
       const messagesByChat = {};
       this.messages.forEach(message => {
@@ -409,10 +429,21 @@ class ChatService {
         }
       });
       
+      console.log('📤 Messages grouped by chat:', Object.keys(messagesByChat));
+      
       // Save messages for each user-to-user chat
       for (const [chatId, messages] of Object.entries(messagesByChat)) {
         const chat = this.chats.find(c => c.id === chatId);
+        console.log(`📤 Processing chat ${chatId}:`, {
+          chatFound: !!chat,
+          chatType: chat?.type,
+          messageCount: messages.length,
+          shouldSave: chat && chat.type !== 'ai_assistant' && chat.type !== 'group'
+        });
+        
         if (chat && chat.type !== 'ai_assistant' && chat.type !== 'group') {
+          console.log(`📤 Saving ${messages.length} messages to server for chat ${chatId} (type: ${chat.type})`);
+          
           const response = await fetch(`${this.apiBaseUrl}/api/user-messages`, {
             method: 'POST',
             headers: {
@@ -426,12 +457,16 @@ class ChatService {
           
           const data = await response.json();
           if (data.success) {
-            console.log(`📤 Saved ${messages.length} messages to server for chat ${chatId}`);
+            console.log(`✅ Successfully saved ${messages.length} messages to server for chat ${chatId}`);
+          } else {
+            console.error(`❌ Failed to save messages for chat ${chatId}:`, data.error);
           }
+        } else {
+          console.log(`⏭️ Skipping chat ${chatId} (type: ${chat?.type || 'not found'})`);
         }
       }
     } catch (error) {
-      console.log('📤 Server user message save failed:', error.message);
+      console.error('❌ Server user message save failed:', error);
     }
   }
 
@@ -555,6 +590,10 @@ class ChatService {
       this.messages.push(message);
       await this.saveMessages();
       console.log('✅ Message saved to user storage');
+
+      // Save message to server for cross-device sync
+      await this.saveUserMessagesToServer();
+      console.log('✅ Message saved to server for cross-device sync');
 
       // Update chat's last message for all participants
       await this.updateChatLastMessage(chatId, message);
