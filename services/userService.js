@@ -145,8 +145,10 @@ class UserService {
       if (userData) {
         this.currentUser = JSON.parse(userData);
         
-        // Load latest profile from server
-        await this.loadUserProfileFromServer();
+        // Load latest profile from server in background (non-blocking)
+        this.loadUserProfileFromServer().catch(error => {
+          console.log('Background profile sync failed:', error.message);
+        });
         
         return this.currentUser;
       }

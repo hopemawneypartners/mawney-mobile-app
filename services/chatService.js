@@ -41,13 +41,7 @@ class ChatService {
   // Load all chats for current user
   async loadChats() {
     try {
-      // First try to load AI Assistant chats from server
-      await this.loadAIChatsFromServer();
-      
-      // Load user-to-user chats from server
-      await this.loadUserChatsFromServer();
-      
-      // Load user's personal chats from local storage (fallback)
+      // Load user's personal chats from local storage first (fast)
       const chatsData = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser?.id}`);
       let userChats = [];
       
@@ -85,6 +79,15 @@ class ChatService {
       this.chats = uniqueChats;
       
       console.log(`✅ Loaded ${userChats.length} user chats and ${sharedGroupChats.length} shared group chats`);
+      
+      // Load chats from server in background (non-blocking)
+      this.loadAIChatsFromServer().catch(error => {
+        console.log('Background AI chat sync failed:', error.message);
+      });
+      this.loadUserChatsFromServer().catch(error => {
+        console.log('Background user chat sync failed:', error.message);
+      });
+      
     } catch (error) {
       console.error('Error loading chats:', error);
       this.chats = [];
@@ -228,13 +231,7 @@ class ChatService {
       const userMessages = messagesData ? JSON.parse(messagesData) : [];
       console.log('📥 Loaded user messages:', userMessages.length);
       
-      // Load AI Assistant messages from server
-      await this.loadAIMessagesFromServer();
-      
-      // Load user-to-user messages from server
-      await this.loadUserMessagesFromServer();
-      
-      // Load shared messages from all chats
+      // Load shared messages from all chats (fast local load)
       const sharedMessages = [];
       for (const chat of this.chats) {
         const sharedKey = `shared_messages_${chat.id}`;
@@ -254,6 +251,15 @@ class ChatService {
       
       console.log('📥 Total messages loaded:', uniqueMessages.length);
       this.messages = uniqueMessages;
+      
+      // Load messages from server in background (non-blocking)
+      this.loadAIMessagesFromServer().catch(error => {
+        console.log('Background AI message sync failed:', error.message);
+      });
+      this.loadUserMessagesFromServer().catch(error => {
+        console.log('Background user message sync failed:', error.message);
+      });
+      
     } catch (error) {
       console.error('Error loading messages:', error);
       this.messages = [];
