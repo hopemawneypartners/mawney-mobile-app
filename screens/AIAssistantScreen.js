@@ -478,11 +478,11 @@ export default function AIAssistantScreen() {
     try {
       console.log('📚 Loading job ad examples and industry knowledge for AI learning...');
       
-      // Check if we've already loaded the examples
+      // Check if we've already loaded the examples (clear cache for new system)
       const hasLoadedExamples = await AsyncStorage.getItem('ai_loaded_job_examples');
       if (hasLoadedExamples) {
-        console.log('📚 Job ad examples and industry knowledge already loaded');
-        return;
+        console.log('📚 Job ad examples and industry knowledge already loaded, but clearing cache for new system');
+        await AsyncStorage.removeItem('ai_loaded_job_examples');
       }
 
       // Load the job ad examples file
