@@ -1,5 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Import profile pictures at the top level
+const profilePictures = {
+  hope: require('../assets/profile-pictures/hope.jpg'),
+  josh: require('../assets/profile-pictures/josh.jpg'),
+  rachel: require('../assets/profile-pictures/rachel.jpg'),
+  jack: require('../assets/profile-pictures/jack.jpg'),
+  harry: require('../assets/profile-pictures/harry.jpg'),
+  tyler: require('../assets/profile-pictures/tyler.jpg')
+};
+
 // Pre-configured users
 const USERS = [
   {
@@ -436,12 +446,12 @@ class UserService {
   // Get hardcoded profile picture for a user (fallback system)
   getHardcodedAvatar(userId) {
     const hardcodedAvatars = {
-      'hg@mawneypartners.com': require('../assets/profile-pictures/hope.jpg'),
-      'jt@mawneypartners.com': require('../assets/profile-pictures/josh.jpg'),
-      'rt@mawneypartners.com': require('../assets/profile-pictures/rachel.jpg'),
-      'jd@mawneypartners.com': require('../assets/profile-pictures/jack.jpg'),
-      'he@mawneypartners.com': require('../assets/profile-pictures/harry.jpg'),
-      'tjt@mawneypartners.com': require('../assets/profile-pictures/tyler.jpg')
+      'hg@mawneypartners.com': profilePictures.hope,
+      'jt@mawneypartners.com': profilePictures.josh,
+      'rt@mawneypartners.com': profilePictures.rachel,
+      'jd@mawneypartners.com': profilePictures.jack,
+      'he@mawneypartners.com': profilePictures.harry,
+      'tjt@mawneypartners.com': profilePictures.tyler
     };
     
     const user = this.getUsers().find(u => u.id === userId);
