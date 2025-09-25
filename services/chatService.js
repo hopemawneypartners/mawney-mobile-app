@@ -612,8 +612,18 @@ class ChatService {
   // Send notification for new message
   async sendMessageNotification(chatId, message) {
     try {
+      console.log('🔔 Attempting to send notification for message:', {
+        chatId,
+        messageId: message.id,
+        senderId: message.senderId,
+        currentUserId: this.currentUser?.id
+      });
+      
       const chat = this.chats.find(c => c.id === chatId);
-      if (!chat) return;
+      if (!chat) {
+        console.log('❌ Chat not found for notification');
+        return;
+      }
 
       // Get sender info
       const senderInfo = await this.getUserInfo(message.senderId);
@@ -632,6 +642,13 @@ class ChatService {
         }
       }
 
+      console.log('🔔 Sending notification with details:', {
+        senderName,
+        chatName,
+        chatId,
+        messageText: message.text.substring(0, 50) + '...'
+      });
+
       // Send notification
       await ChatNotificationService.sendMessageNotification(
         message,
@@ -640,7 +657,7 @@ class ChatService {
         chatId
       );
 
-      console.log('💬 Notification sent for new message');
+      console.log('✅ Notification sent for new message');
     } catch (error) {
       console.error('❌ Error sending message notification:', error);
     }
@@ -669,6 +686,18 @@ class ChatService {
           senderId: message.senderId,
           timestamp: message.timestamp
         };
+        
+        // Update unread count for all participants except the sender
+        chat.participants.forEach(participantId => {
+          if (participantId !== message.senderId) {
+            // Increment unread count for other participants
+            if (!chat.unreadCounts) {
+              chat.unreadCounts = {};
+            }
+            chat.unreadCounts[participantId] = (chat.unreadCounts[participantId] || 0) + 1;
+          }
+        });
+        
         await this.saveChats();
 
         // If it's a group chat, update the shared group chat storage
@@ -789,7 +818,12 @@ class ChatService {
     try {
       const chat = this.chats.find(c => c.id === chatId);
       if (chat) {
-        chat.unreadCount = 0;
+        // Clear unread count for current user
+        if (chat.unreadCounts && this.currentUser) {
+          chat.unreadCounts[this.currentUser.id] = 0;
+        } else {
+          chat.unreadCount = 0;
+        }
         await this.saveChats();
 
         // If it's a group chat, update the shared group chat storage
@@ -877,12 +911,23 @@ class ChatService {
   // Get unread count for a chat
   getUnreadCount(chatId) {
     const chat = this.chats.find(c => c.id === chatId);
-    return chat ? chat.unreadCount : 0;
+    if (!chat) return 0;
+    
+    // Use the new unreadCounts structure if available, otherwise fall back to old unreadCount
+    if (chat.unreadCounts && this.currentUser) {
+      return chat.unreadCounts[this.currentUser.id] || 0;
+    }
+    return chat.unreadCount || 0;
   }
 
   // Get total unread count
   getTotalUnreadCount() {
-    return this.chats.reduce((total, chat) => total + chat.unreadCount, 0);
+    return this.chats.reduce((total, chat) => {
+      if (chat.unreadCounts && this.currentUser) {
+        return total + (chat.unreadCounts[this.currentUser.id] || 0);
+      }
+      return total + (chat.unreadCount || 0);
+    }, 0);
   }
 
   // Get user info by ID

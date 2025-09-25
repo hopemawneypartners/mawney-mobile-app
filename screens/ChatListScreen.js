@@ -11,8 +11,10 @@ import {
   Modal,
   Image,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import ChatService from '../services/chatService';
 import UserService from '../services/userService';
+import ChatPollingService from '../services/chatPollingService';
 
 const colors = {
   primary: '#004b35',
@@ -41,7 +43,27 @@ export default function ChatListScreen({ navigation }) {
 
   useEffect(() => {
     initializeChats();
+    
+    // Listen for polling updates to refresh chat list
+    const handlePollingUpdate = () => {
+      console.log('📱 ChatListScreen - Polling update received, refreshing chats');
+      loadChats();
+    };
+    
+    ChatPollingService.addListener(handlePollingUpdate);
+    
+    return () => {
+      ChatPollingService.removeListener(handlePollingUpdate);
+    };
   }, []);
+
+  // Refresh chats when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      console.log('📱 ChatListScreen - Screen focused, refreshing chats');
+      loadChats();
+    }, [])
+  );
 
   const initializeChats = async () => {
     try {
