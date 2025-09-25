@@ -40,6 +40,7 @@ export default function ChatListScreen({ navigation }) {
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [participantsData, setParticipantsData] = useState({});
   const [chatToDelete, setChatToDelete] = useState(null);
+  const [totalUnreadCount, setTotalUnreadCount] = useState(0);
 
   useEffect(() => {
     initializeChats();
@@ -49,11 +50,15 @@ export default function ChatListScreen({ navigation }) {
       console.log('📱 ChatListScreen - Polling update received:', event, data);
       
       if (event === 'new_message') {
-        console.log(`📱 New message in chat ${data.chatId}, refreshing chat list`);
+        console.log(`📱 New message in chat ${data.chatId} (${data.chatName}), refreshing chat list`);
+        console.log(`📱 Unread count: ${data.unreadCount}, New messages: ${data.newMessagesCount}`);
         // Refresh chats to show updated unread counts
         loadChats();
       } else if (event === 'polling_update') {
         console.log('📱 General polling update, refreshing chat list');
+        console.log(`📱 Total unread count: ${data?.totalUnreadCount || 0}, Has new messages: ${data?.hasNewMessages || false}`);
+        // Update total unread count
+        setTotalUnreadCount(data?.totalUnreadCount || 0);
         // Refresh chats to show any updates
         loadChats();
       }
@@ -91,6 +96,13 @@ export default function ChatListScreen({ navigation }) {
     const allChats = ChatService.getChats();
     console.log('🔍 ChatListScreen - Loaded chats:', allChats.map(c => ({ id: c.id, name: c.name, type: c.type })));
     setChats(allChats);
+    
+    // Calculate total unread count
+    const totalUnread = allChats.reduce((total, chat) => {
+      return total + ChatService.getUnreadCount(chat.id);
+    }, 0);
+    setTotalUnreadCount(totalUnread);
+    console.log('📊 Total unread messages:', totalUnread);
     
     // Load participants data with actual avatars
     await loadParticipantsData(allChats);
@@ -463,7 +475,16 @@ export default function ChatListScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>Messages</Text>
+          {totalUnreadCount > 0 && (
+            <View style={styles.totalUnreadBadge}>
+              <Text style={styles.totalUnreadText}>
+                {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+              </Text>
+            </View>
+          )}
+        </View>
         <TouchableOpacity style={styles.newChatButton} onPress={handleNewChat}>
           <Text style={styles.newChatButtonText}>+</Text>
         </TouchableOpacity>
@@ -527,10 +548,29 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.accent + '30',
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
     color: colors.primary,
+    marginRight: 10,
+  },
+  totalUnreadBadge: {
+    backgroundColor: colors.error,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
+  totalUnreadText: {
+    color: colors.surface,
+    fontSize: 12,
+    fontWeight: '600',
   },
   newChatButton: {
     width: 40,

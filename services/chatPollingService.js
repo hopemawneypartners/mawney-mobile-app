@@ -45,33 +45,61 @@ class ChatPollingService {
       // Load new messages from server for all user-to-user chats
       const chats = ChatService.getChats();
       let hasNewMessages = false;
+      let totalUnreadCount = 0;
       
+      // Store previous unread counts to detect changes
+      const previousUnreadCounts = {};
       for (const chat of chats) {
-        // Only poll user-to-user chats (not AI assistant or group chats)
+        if (chat.type !== 'ai_assistant' && chat.type !== 'group') {
+          previousUnreadCounts[chat.id] = ChatService.getUnreadCount(chat.id);
+        }
+      }
+      
+      // Load messages from server for all chats
+      await ChatService.loadUserMessagesFromServer();
+      
+      // Check for changes in unread counts
+      for (const chat of chats) {
+        // Only check user-to-user chats (not AI assistant or group chats)
         if (chat.type !== 'ai_assistant' && chat.type !== 'group') {
           try {
-            // Load messages from server for this chat
-            await ChatService.loadUserMessagesFromServer();
+            const currentUnreadCount = ChatService.getUnreadCount(chat.id);
+            const previousUnreadCount = previousUnreadCounts[chat.id] || 0;
             
-            // Check if there are any unread messages after loading from server
-            const unreadCount = ChatService.getUnreadCount(chat.id);
-            if (unreadCount > 0) {
+            totalUnreadCount += currentUnreadCount;
+            
+            // If unread count increased, we have new messages
+            if (currentUnreadCount > previousUnreadCount) {
               hasNewMessages = true;
-              console.log(`📱 New messages in chat ${chat.name}: ${unreadCount} unread`);
-              // Notify listeners about new messages in this chat
-              this.notifyListeners('new_message', { chatId: chat.id, unreadCount });
+              console.log(`📱 New messages in chat ${chat.name}: ${currentUnreadCount} unread (was ${previousUnreadCount})`);
+              // Notify listeners about new messages in this specific chat
+              this.notifyListeners('new_message', { 
+                chatId: chat.id, 
+                unreadCount: currentUnreadCount,
+                chatName: chat.name,
+                newMessagesCount: currentUnreadCount - previousUnreadCount
+              });
+            } else if (currentUnreadCount > 0) {
+              // Chat has unread messages but no new ones
+              console.log(`📱 Chat ${chat.name} has ${currentUnreadCount} unread messages`);
             }
           } catch (chatError) {
-            console.error(`❌ Error polling chat ${chat.name}:`, chatError);
+            console.error(`❌ Error checking chat ${chat.name}:`, chatError);
           }
         }
       }
       
       // Always notify about polling update to refresh UI
-      this.notifyListeners('polling_update');
+      this.notifyListeners('polling_update', { 
+        totalUnreadCount,
+        hasNewMessages,
+        timestamp: new Date().toISOString()
+      });
       
       if (hasNewMessages) {
-        console.log('📱 New messages detected during polling');
+        console.log(`📱 New messages detected during polling. Total unread: ${totalUnreadCount}`);
+      } else if (totalUnreadCount > 0) {
+        console.log(`📱 No new messages, but ${totalUnreadCount} total unread messages across all chats`);
       }
     } catch (error) {
       console.error('❌ Error checking for new messages:', error);
