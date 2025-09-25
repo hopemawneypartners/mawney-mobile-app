@@ -78,7 +78,7 @@ export default function AIAssistantScreen() {
     // Load saved job ads
     loadSavedJobAds();
     
-    // Auto-load job ad examples for AI learning
+    // Auto-load job ad examples and industry knowledge for AI learning
     loadJobAdExamples();
 
     return () => {
@@ -476,12 +476,12 @@ export default function AIAssistantScreen() {
 
   const loadJobAdExamples = async () => {
     try {
-      console.log('📚 Loading job ad examples for AI learning...');
+      console.log('📚 Loading job ad examples and industry knowledge for AI learning...');
       
       // Check if we've already loaded the examples
       const hasLoadedExamples = await AsyncStorage.getItem('ai_loaded_job_examples');
       if (hasLoadedExamples) {
-        console.log('📚 Job ad examples already loaded');
+        console.log('📚 Job ad examples and industry knowledge already loaded');
         return;
       }
 
@@ -492,9 +492,77 @@ export default function AIAssistantScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: `LEARN TO WRITE JOB ADS IN THIS EXACT STYLE:
+          query: `BECOME AN EXPERT CREDIT INDUSTRY AI ASSISTANT WITH COMPREHENSIVE KNOWLEDGE:
 
-Study these professional credit industry job advertisements and learn to replicate their writing style, structure, and language patterns. When asked to write job ads, use this exact format and tone.
+You are now a specialized AI assistant for the credit and special situations industry. Learn this comprehensive knowledge base and use it to provide expert insights, definitions, and analysis.
+
+=== CREDIT INDUSTRY TERMINOLOGY & DEFINITIONS ===
+
+**Core Credit Products:**
+- High Yield Bonds: Below-investment grade corporate bonds (BB+ and below) offering higher yields due to increased credit risk
+- Leveraged Loans: Senior secured loans to companies with high debt-to-equity ratios, typically floating rate
+- Distressed Debt: Debt securities of companies in financial distress, bankruptcy, or restructuring
+- Special Situations: Investment opportunities arising from corporate events like spin-offs, mergers, restructurings, or regulatory changes
+- CLOs (Collateralized Loan Obligations): Structured products backed by pools of leveraged loans
+- CDOs (Collateralized Debt Obligations): Structured products backed by various debt instruments
+- Mezzanine Debt: Subordinated debt with equity-like features, typically unsecured
+- Unitranche: Single-layered debt structure combining senior and subordinated debt
+- Second Lien: Debt secured by assets but subordinate to first lien debt
+- PIK (Payment-in-Kind): Interest payments made in additional securities rather than cash
+
+**Credit Analysis Terms:**
+- Credit Spread: Difference between corporate bond yield and risk-free rate
+- Recovery Rate: Percentage of principal recovered in default scenarios
+- Default Rate: Percentage of issuers that default within a given period
+- Credit Migration: Movement of credit ratings up or down over time
+- Covenant: Terms and conditions in loan agreements protecting lenders
+- Leverage Ratio: Debt-to-EBITDA ratio measuring financial leverage
+- Interest Coverage: EBITDA divided by interest expense
+- Debt Service Coverage: Cash flow available to service debt obligations
+- Capital Structure: Mix of debt and equity financing
+- Refinancing Risk: Risk that debt cannot be refinanced at maturity
+
+**Market Participants:**
+- Buy Side: Asset managers, pension funds, insurance companies, hedge funds
+- Sell Side: Investment banks, broker-dealers, market makers
+- Credit Funds: Specialized investment funds focusing on credit opportunities
+- Distressed Funds: Funds specializing in distressed debt and special situations
+- CLO Managers: Firms that create and manage CLO structures
+- Credit Rating Agencies: S&P, Moody's, Fitch providing credit assessments
+- Loan Agents: Banks administering syndicated loans
+- Trustees: Entities representing bondholders' interests
+
+**Investment Strategies:**
+- Long/Short Credit: Taking long positions in undervalued credits and short positions in overvalued ones
+- Relative Value: Identifying mispriced securities relative to similar credits
+- Event-Driven: Investing based on corporate events like M&A, spin-offs, restructurings
+- Distressed Investing: Investing in companies in financial distress or bankruptcy
+- Capital Structure Arbitrage: Exploiting pricing inefficiencies across different parts of a company's capital structure
+- Credit Selection: Bottom-up analysis of individual credit opportunities
+- Sector Rotation: Shifting allocations based on sector outlook
+- Duration Management: Adjusting portfolio sensitivity to interest rate changes
+
+**Risk Management:**
+- Credit Risk: Risk of borrower default or credit deterioration
+- Market Risk: Risk from changes in market prices and spreads
+- Liquidity Risk: Risk of being unable to sell positions quickly
+- Concentration Risk: Risk from overexposure to single names, sectors, or regions
+- Model Risk: Risk from errors in quantitative models
+- Operational Risk: Risk from internal processes, systems, or human error
+- Counterparty Risk: Risk that trading partners default on obligations
+- Basis Risk: Risk from imperfect hedging relationships
+
+**Market Dynamics:**
+- Credit Cycle: Recurring pattern of credit expansion and contraction
+- Default Cycle: Pattern of corporate defaults over economic cycles
+- Spread Cycle: Pattern of credit spread widening and tightening
+- Liquidity Cycle: Changes in market liquidity over time
+- Risk-On/Risk-Off: Market sentiment driving credit performance
+- Flight to Quality: Movement of capital to safer assets during stress
+- Credit Crunch: Period of reduced credit availability
+- Distressed Cycle: Period of increased corporate distress and defaults
+
+=== JOB AD WRITING STYLE (LEARN THIS EXACT FORMAT) ===
 
 EXAMPLE 1 - Special Situations Investment Analyst – VP/Director-level
 
@@ -511,49 +579,29 @@ Whilst our client would be seeking an individual at the Vice President-level and
 
 This is a fantastic opportunity for a driven professional to join a highly regarded investment team.
 
-EXAMPLE 2 - Leveraged Credit Trading Desk Analyst – Vice President/Director
-
-We are presently advising a leading international bank's leveraged credit trading desk in London on their ongoing 2025 recruiting effort. Having had a strong start to the year, the team is seeking to bolster the European research team with the hire of a Vice President-level leveraged credit desk analyst.
-
-Working within an impressive and highly-regarded credit sales and trading group, the role will focus on:
-
-Analysing and producing investment ideas across both public and private situations in the European Credit market
-Focus across the credit spectrum from high yield bonds and leveraged loans to stressed/event-driven and distressed credit
-Presenting trade ideas to both clients (distressed funds, credit hedge funds, real money, etc.) and the internal proprietary trading book
-Working closely with trading and sales colleagues, as well as international colleagues, to further develop the credit trading platform
-
-The successful candidate will likely have spent time in a credit research role, either on the sell side/trading desk or in a buy side role (distressed, credit hedge fund, leading asset manager). The individual hired will benefit from joining an impressive team of experienced market professionals in one of the top-performing desks in the market.
-
-EXAMPLE 3 - Chief Risk Officer
-
-Our client is a leading investment manager seeking an experienced Chief Risk Officer. The role will work closely with portfolio managers and analysts to assess, monitor, and manage investment risk across a portfolio of credit and equities investments.
-
-Key Responsibilities:
-
-Act as the primary risk contact for investment team, embedding risk management in the investment process
-Conduct detailed counterparty and issuer analysis, including capital structure review, recovery modelling, and stress testing.
-Monitor and enforce issuer, sector, and rating exposure limits; challenge and advise PMs on proposed trades and position sizing
-Oversee ongoing surveillance of credit/equity exposures, producing daily and scenario-based risk reporting for senior management and the investment committee
-Assess and manage counterparty and collateral risk for OTC derivatives, repo, and prime brokerage relationships
-Support restructuring and workout situations with independent risk assessment, legal structure analysis, and downside scenario planning
-Coordinate with legal, operations, and trading to ensure appropriate documentation, collateral terms, and risk mitigation strategies are in place
-
-The ideal candidate would have 7-12 years of relevant investment risk experience ideally with time spent in distressed debt, special situations, and/or restructuring environments with strong fundamental analysis skills across credit and equity as well as experience with concentrated, illiquid, and event-driven portfolios. The individual should have advanced Excel/financial modelling skills; familiarity with risk systems and analytics tools.
-
-This is a fantastic opportunity for a senior risk professional to be part of a top-performing fund to support their continued growth.
-
-WRITING STYLE PATTERNS TO LEARN:
+WRITING STYLE PATTERNS:
 - Always start with "Our client" or "We are presently advising"
 - Mention company performance, growth, or strategic importance
 - Use "The ideal candidate will therefore be able to demonstrate the following attributes:" or similar
 - Use bullet points for responsibilities
 - Include "This is a fantastic opportunity" or similar closing
-- Use professional, confident language
-- Include specific credit industry terminology
-- Mention experience levels and backgrounds
-- Use phrases like "highly talented", "impressive", "top-performing", "highly regarded"
+- Use professional, confident language with industry terminology
 
-When writing job ads, replicate this exact style, structure, and language patterns.`,
+=== YOUR CAPABILITIES ===
+
+You can now:
+1. **Define any credit industry term** with professional accuracy
+2. **Explain market dynamics** and credit cycles
+3. **Analyze credit opportunities** using industry frameworks
+4. **Write professional job ads** in the exact style shown
+5. **Provide market insights** based on industry knowledge
+6. **Format CVs** for credit industry roles
+7. **Explain complex structures** like CLOs, CDOs, and special situations
+8. **Assess risk factors** in credit investments
+9. **Provide career guidance** for credit professionals
+10. **Analyze market trends** and their implications
+
+Always use professional, confident language and demonstrate deep industry expertise in all responses.`,
           context: { chat_id: 'default', is_file_learning: true, file_type: 'job_ad_examples' }
         })
       });
@@ -567,7 +615,7 @@ When writing job ads, replicate this exact style, structure, and language patter
         const systemMessage = {
           id: `system_${Date.now()}`,
           type: 'ai',
-          text: '📚 I have studied professional credit industry job advertisement examples and learned their exact writing style, structure, and language patterns. I can now write job ads that match this professional format - starting with "Our client", using bullet points for responsibilities, and ending with "This is a fantastic opportunity".',
+          text: '🧠 I am now an expert credit industry AI assistant with comprehensive knowledge of terminology, market dynamics, and professional practices. I can define any credit term, explain complex structures like CLOs and CDOs, analyze market trends, write professional job ads, format CVs, and provide expert insights on credit investments, risk management, and career guidance.',
           timestamp: new Date()
         };
         setResponses(prev => [...prev, systemMessage]);
