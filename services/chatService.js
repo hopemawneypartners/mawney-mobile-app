@@ -998,9 +998,12 @@ class ChatService {
     // Get actual uploaded avatar
     const actualAvatar = await UserService.getActualAvatar(userId);
     
+    // If no uploaded avatar, try hardcoded avatar
+    const hardcodedAvatar = actualAvatar ? null : UserService.getHardcodedAvatar(userId);
+    
     return {
       ...user,
-      avatar: actualAvatar || user.avatar // Use uploaded avatar or fallback to generated one
+      avatar: actualAvatar || hardcodedAvatar || user.avatar // Use uploaded avatar, hardcoded avatar, or fallback to generated one
     };
   }
 

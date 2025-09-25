@@ -433,6 +433,26 @@ class UserService {
     return null;
   }
 
+  // Get hardcoded profile picture for a user (fallback system)
+  getHardcodedAvatar(userId) {
+    const hardcodedAvatars = {
+      'hg@mawneypartners.com': 'https://ui-avatars.com/api/?name=Hope+Gilbert&background=004b35&color=ffffff&size=200&bold=true',
+      'jt@mawneypartners.com': 'https://ui-avatars.com/api/?name=Joshua+Trister&background=266b52&color=ffffff&size=200&bold=true',
+      'rt@mawneypartners.com': 'https://ui-avatars.com/api/?name=Rachel+Trister&background=4d8b70&color=ffffff&size=200&bold=true',
+      'jd@mawneypartners.com': 'https://ui-avatars.com/api/?name=Jack+Dalby&background=004b35&color=ffffff&size=200&bold=true',
+      'he@mawneypartners.com': 'https://ui-avatars.com/api/?name=Harry+Edleman&background=266b52&color=ffffff&size=200&bold=true',
+      'tjt@mawneypartners.com': 'https://ui-avatars.com/api/?name=Tyler+Johnson+Thomas&background=4d8b70&color=ffffff&size=200&bold=true'
+    };
+    
+    const user = this.getUsers().find(u => u.id === userId);
+    if (user && hardcodedAvatars[user.email]) {
+      console.log(`🎨 Using hardcoded avatar for ${user.name}`);
+      return hardcodedAvatars[user.email];
+    }
+    
+    return null;
+  }
+
   // Get all users with their actual uploaded avatars
   async getAllUsersWithAvatars() {
     const users = this.getUsers();
@@ -440,9 +460,11 @@ class UserService {
     
     for (const user of users) {
       const actualAvatar = await this.getActualAvatar(user.id);
+      const hardcodedAvatar = actualAvatar ? null : this.getHardcodedAvatar(user.id);
+      
       usersWithAvatars.push({
         ...user,
-        actualAvatar: actualAvatar || user.avatar // Use uploaded avatar or fallback to generated one
+        actualAvatar: actualAvatar || hardcodedAvatar || user.avatar // Use uploaded avatar, hardcoded avatar, or fallback to generated one
       });
     }
     
