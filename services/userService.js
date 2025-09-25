@@ -436,17 +436,17 @@ class UserService {
   // Get hardcoded profile picture for a user (fallback system)
   getHardcodedAvatar(userId) {
     const hardcodedAvatars = {
-      'hg@mawneypartners.com': 'https://ui-avatars.com/api/?name=Hope+Gilbert&background=004b35&color=ffffff&size=200&bold=true',
-      'jt@mawneypartners.com': 'https://ui-avatars.com/api/?name=Joshua+Trister&background=266b52&color=ffffff&size=200&bold=true',
-      'rt@mawneypartners.com': 'https://ui-avatars.com/api/?name=Rachel+Trister&background=4d8b70&color=ffffff&size=200&bold=true',
-      'jd@mawneypartners.com': 'https://ui-avatars.com/api/?name=Jack+Dalby&background=004b35&color=ffffff&size=200&bold=true',
-      'he@mawneypartners.com': 'https://ui-avatars.com/api/?name=Harry+Edleman&background=266b52&color=ffffff&size=200&bold=true',
-      'tjt@mawneypartners.com': 'https://ui-avatars.com/api/?name=Tyler+Johnson+Thomas&background=4d8b70&color=ffffff&size=200&bold=true'
+      'hg@mawneypartners.com': require('../assets/profile-pictures/hope.jpg'),
+      'jt@mawneypartners.com': require('../assets/profile-pictures/josh.jpg'),
+      'rt@mawneypartners.com': require('../assets/profile-pictures/rachel.jpg'),
+      'jd@mawneypartners.com': require('../assets/profile-pictures/jack.jpg'),
+      'he@mawneypartners.com': require('../assets/profile-pictures/harry.jpg'),
+      'tjt@mawneypartners.com': require('../assets/profile-pictures/tyler.jpg')
     };
     
     const user = this.getUsers().find(u => u.id === userId);
     if (user && hardcodedAvatars[user.email]) {
-      console.log(`🎨 Using hardcoded avatar for ${user.name}`);
+      console.log(`🎨 Using local JPG avatar for ${user.name}`);
       return hardcodedAvatars[user.email];
     }
     
