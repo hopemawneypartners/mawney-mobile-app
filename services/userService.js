@@ -107,8 +107,17 @@ class UserService {
     if (!this.currentUser) return;
     
     try {
+      console.log('🌐 Loading user profile from server for:', this.currentUser.email);
+      
       const response = await fetch(`${this.apiBaseUrl}/api/user/profile?email=${encodeURIComponent(this.currentUser.email)}`);
       const data = await response.json();
+      
+      console.log('🌐 Server profile response:', {
+        success: data.success,
+        hasProfile: !!data.profile,
+        hasAvatar: !!data.profile?.avatar,
+        avatarLength: data.profile?.avatar?.length || 0
+      });
       
       if (data.success && data.profile) {
         // Merge server profile with local user data
@@ -120,9 +129,12 @@ class UserService {
           password: this.currentUser.password
         };
         await this.saveCurrentUser();
+        console.log('✅ User profile loaded from server and merged');
+      } else {
+        console.log('⚠️ No profile data from server');
       }
     } catch (error) {
-      console.error('Error loading user profile from server:', error);
+      console.error('❌ Error loading user profile from server:', error);
     }
   }
 
@@ -180,6 +192,13 @@ class UserService {
     if (!this.currentUser) return;
     
     try {
+      console.log('🌐 Saving user profile to server:', {
+        email: this.currentUser.email,
+        name: this.currentUser.name,
+        hasAvatar: !!this.currentUser.avatar,
+        avatarLength: this.currentUser.avatar?.length || 0
+      });
+      
       const response = await fetch(`${this.apiBaseUrl}/api/user/profile`, {
         method: 'POST',
         headers: {
@@ -194,11 +213,15 @@ class UserService {
       });
       
       const data = await response.json();
+      console.log('🌐 Server response:', data);
+      
       if (data.success) {
-        console.log('User profile saved to server successfully');
+        console.log('✅ User profile saved to server successfully');
+      } else {
+        console.error('❌ Server returned error:', data.error);
       }
     } catch (error) {
-      console.error('Error saving user profile to server:', error);
+      console.error('❌ Error saving user profile to server:', error);
     }
   }
 

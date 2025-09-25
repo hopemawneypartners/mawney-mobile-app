@@ -75,14 +75,20 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
 
       if (!result.canceled && result.assets[0]) {
         const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        console.log('📸 Profile picture selected, base64 length:', base64Image.length);
         setUser(prev => ({ ...prev, avatar: base64Image }));
         
         // Update user service with new avatar
         const currentUser = UserService.getCurrentUser();
         if (currentUser) {
+          console.log('👤 Updating current user avatar...');
           currentUser.avatar = base64Image;
           await UserService.saveCurrentUser();
+          console.log('💾 Saved to local storage, now saving to server...');
           await UserService.saveUserProfileToServer();
+          console.log('✅ Profile picture saved to server');
+        } else {
+          console.error('❌ No current user found');
         }
       }
     } catch (error) {
