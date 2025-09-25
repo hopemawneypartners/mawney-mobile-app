@@ -77,11 +77,15 @@ export default function ChatListScreen({ navigation }) {
       console.log('📱 ChatListScreen - Screen focused, refreshing chats and avatars');
       
       // Refresh avatars in background (non-blocking)
-      UserService.refreshAllUserAvatars().catch(error => {
+      UserService.refreshAllUserAvatars().then(() => {
+        console.log('🔄 Background avatar refresh completed, reloading participants data');
+        // Reload participants data after avatar refresh
+        loadChats();
+      }).catch(error => {
         console.log('Background avatar refresh failed:', error.message);
+        // Still load chats even if avatar refresh fails
+        loadChats();
       });
-      
-      loadChats();
     }, [])
   );
 
@@ -94,6 +98,7 @@ export default function ChatListScreen({ navigation }) {
       console.log('🔄 Refreshing all user avatars for chat list...');
       await UserService.refreshAllUserAvatars();
       
+      // Load chats and participants data after avatar refresh
       loadChats();
     } catch (error) {
       console.error('Error initializing chats:', error);
@@ -127,6 +132,18 @@ export default function ChatListScreen({ navigation }) {
         try {
           const participants = await ChatService.getChatParticipants(chat.id);
           participantsMap[chat.id] = participants || [];
+          
+          // Debug logging for avatars
+          if (participants && participants.length > 0) {
+            participants.forEach(participant => {
+              console.log(`👤 Participant ${participant.name}:`, {
+                hasAvatar: participant.avatar ? 'Yes' : 'No',
+                avatarLength: participant.avatar ? participant.avatar.length : 0,
+                avatarPreview: participant.avatar ? participant.avatar.substring(0, 50) + '...' : 'None'
+              });
+            });
+          }
+          
           console.log(`✅ Loaded ${participants?.length || 0} participants for chat ${chat.name}`);
         } catch (chatError) {
           console.error(`❌ Error loading participants for chat ${chat.name}:`, chatError);
@@ -148,6 +165,7 @@ export default function ChatListScreen({ navigation }) {
     console.log('🔄 Pull-to-refresh: Refreshing all user avatars...');
     await UserService.refreshAllUserAvatars();
     
+    // Reload chats and participants data after avatar refresh
     loadChats();
     setRefreshing(false);
   }, []);
