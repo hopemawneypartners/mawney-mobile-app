@@ -25,24 +25,49 @@ class ChatService {
         return false;
       }
       
+      console.log('🔍 ChatService initialize - User ID:', this.currentUser.id);
+      
       await this.loadChats();
       await this.loadMessages();
       
       // Initialize chat notifications
       await ChatNotificationService.initialize(this.currentUser);
       
+      console.log('✅ ChatService initialized successfully for user:', this.currentUser.id);
       return true;
     } catch (error) {
-      console.error('Error initializing chat service:', error);
+      console.error('❌ Error initializing chat service:', error);
       return false;
     }
+  }
+
+  // Force re-initialization when user changes
+  async reinitialize() {
+    console.log('🔄 Re-initializing ChatService...');
+    this.currentUser = null;
+    this.chats = [];
+    this.messages = [];
+    return await this.initialize();
+  }
+
+  // Get current user
+  getCurrentUser() {
+    return this.currentUser;
   }
 
   // Load all chats for current user
   async loadChats() {
     try {
+      if (!this.currentUser || !this.currentUser.id) {
+        console.error('❌ Cannot load chats: currentUser is null or has no ID');
+        console.error('❌ Current user:', this.currentUser);
+        return;
+      }
+      
+      console.log('📥 Loading chats for user:', this.currentUser.id);
+      
       // Load user's personal chats from local storage first (fast)
-      const chatsData = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser?.id}`);
+      const chatsData = await AsyncStorage.getItem(`${CHAT_STORAGE_KEY}_${this.currentUser.id}`);
       let userChats = [];
       
       if (chatsData) {
@@ -367,16 +392,26 @@ class ChatService {
   // Save chats to storage
   async saveChats() {
     try {
+      if (!this.currentUser || !this.currentUser.id) {
+        console.error('❌ Cannot save chats: currentUser is null or has no ID');
+        console.error('❌ Current user:', this.currentUser);
+        return;
+      }
+      
+      console.log('💾 Saving chats for user:', this.currentUser.id, 'Chat count:', this.chats.length);
+      
       // Save to local storage
       await AsyncStorage.setItem(
-        `${CHAT_STORAGE_KEY}_${this.currentUser?.id}`,
+        `${CHAT_STORAGE_KEY}_${this.currentUser.id}`,
         JSON.stringify(this.chats)
       );
+      
+      console.log('✅ Chats saved to local storage');
       
       // Save user-to-user chats to server
       await this.saveUserChatsToServer();
     } catch (error) {
-      console.error('Error saving chats:', error);
+      console.error('❌ Error saving chats:', error);
     }
   }
 

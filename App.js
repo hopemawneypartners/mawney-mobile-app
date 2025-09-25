@@ -173,9 +173,12 @@ export default function App() {
     }
   };
 
-  const initializeChatNotifications = (navigation) => {
+  const initializeChatNotifications = async (navigation) => {
     try {
       console.log('💬 Setting up chat notifications...');
+      
+      // Re-initialize ChatService to ensure it has the current user
+      await ChatService.reinitialize();
       
       // Set navigation callback for notifications
       ChatNotificationService.setNavigationCallback((screenName, params) => {
