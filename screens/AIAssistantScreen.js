@@ -492,9 +492,11 @@ export default function AIAssistantScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: `Please learn from these professional credit industry job advertisement examples. These are real examples that demonstrate proper structure, language, and format for writing effective job ads in the credit and special situations space. Use these as a reference for writing professional job advertisements.
+          query: `LEARN TO WRITE JOB ADS IN THIS EXACT STYLE:
 
-1. Special Situations Investment Analyst – VP/Director-level
+Study these professional credit industry job advertisements and learn to replicate their writing style, structure, and language patterns. When asked to write job ads, use this exact format and tone.
+
+EXAMPLE 1 - Special Situations Investment Analyst – VP/Director-level
 
 Our client, a top-performing credit fund are seeking to add a talented special situations investment professional to their growing team in London. This is a key hire for the fund, following several years of strong performance and AuM growth.
 
@@ -509,7 +511,7 @@ Whilst our client would be seeking an individual at the Vice President-level and
 
 This is a fantastic opportunity for a driven professional to join a highly regarded investment team.
 
-2. Leveraged Credit Trading Desk Analyst – Vice President/Director
+EXAMPLE 2 - Leveraged Credit Trading Desk Analyst – Vice President/Director
 
 We are presently advising a leading international bank's leveraged credit trading desk in London on their ongoing 2025 recruiting effort. Having had a strong start to the year, the team is seeking to bolster the European research team with the hire of a Vice President-level leveraged credit desk analyst.
 
@@ -522,7 +524,7 @@ Working closely with trading and sales colleagues, as well as international coll
 
 The successful candidate will likely have spent time in a credit research role, either on the sell side/trading desk or in a buy side role (distressed, credit hedge fund, leading asset manager). The individual hired will benefit from joining an impressive team of experienced market professionals in one of the top-performing desks in the market.
 
-3. Chief Risk Officer
+EXAMPLE 3 - Chief Risk Officer
 
 Our client is a leading investment manager seeking an experienced Chief Risk Officer. The role will work closely with portfolio managers and analysts to assess, monitor, and manage investment risk across a portfolio of credit and equities investments.
 
@@ -540,7 +542,18 @@ The ideal candidate would have 7-12 years of relevant investment risk experience
 
 This is a fantastic opportunity for a senior risk professional to be part of a top-performing fund to support their continued growth.
 
-Please learn from these examples and use them as a reference for writing professional credit industry job advertisements.`,
+WRITING STYLE PATTERNS TO LEARN:
+- Always start with "Our client" or "We are presently advising"
+- Mention company performance, growth, or strategic importance
+- Use "The ideal candidate will therefore be able to demonstrate the following attributes:" or similar
+- Use bullet points for responsibilities
+- Include "This is a fantastic opportunity" or similar closing
+- Use professional, confident language
+- Include specific credit industry terminology
+- Mention experience levels and backgrounds
+- Use phrases like "highly talented", "impressive", "top-performing", "highly regarded"
+
+When writing job ads, replicate this exact style, structure, and language patterns.`,
           context: { chat_id: 'default', is_file_learning: true, file_type: 'job_ad_examples' }
         })
       });
@@ -554,7 +567,7 @@ Please learn from these examples and use them as a reference for writing profess
         const systemMessage = {
           id: `system_${Date.now()}`,
           type: 'ai',
-          text: '📚 I have learned from professional credit industry job advertisement examples. I can now help you write high-quality job ads using proper structure, language, and format for the credit and special situations space.',
+          text: '📚 I have studied professional credit industry job advertisement examples and learned their exact writing style, structure, and language patterns. I can now write job ads that match this professional format - starting with "Our client", using bullet points for responsibilities, and ending with "This is a fantastic opportunity".',
           timestamp: new Date()
         };
         setResponses(prev => [...prev, systemMessage]);
