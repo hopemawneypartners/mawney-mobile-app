@@ -180,6 +180,20 @@ export default function App() {
       // Re-initialize ChatService to ensure it has the current user
       await ChatService.reinitialize();
       
+      // Initialize ChatNotificationService with current user
+      const currentUser = UserService.getCurrentUser();
+      if (currentUser) {
+        console.log('💬 Initializing ChatNotificationService for user:', currentUser.name);
+        const initialized = await ChatNotificationService.initialize(currentUser);
+        if (initialized) {
+          console.log('✅ ChatNotificationService initialized successfully');
+        } else {
+          console.log('⚠️ ChatNotificationService initialization failed');
+        }
+      } else {
+        console.log('⚠️ No current user found for ChatNotificationService initialization');
+      }
+      
       // Set navigation callback for notifications
       ChatNotificationService.setNavigationCallback((screenName, params) => {
         console.log('🔗 Navigating from notification:', screenName, params);

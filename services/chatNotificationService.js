@@ -152,13 +152,25 @@ class ChatNotificationService {
   // Send local notification for new message
   async sendMessageNotification(message, senderName, chatName, chatId) {
     try {
+      console.log('🔔 sendMessageNotification called:', {
+        messageId: message.id,
+        senderId: message.senderId,
+        currentUserId: this.currentUser?.id,
+        senderName,
+        chatName,
+        chatId
+      });
+
       // Don't send notification for own messages
       if (message.senderId === this.currentUser?.id) {
+        console.log('📱 Skipping notification for own message');
         return;
       }
 
       // Check if we have notification permissions
       const hasPermissions = await this.areNotificationsEnabled();
+      console.log('📱 Notification permissions status:', hasPermissions);
+      
       if (!hasPermissions) {
         console.log('📱 Notifications not enabled, skipping notification');
         return;
@@ -170,7 +182,9 @@ class ChatNotificationService {
         ? `${senderName} sent an attachment`
         : message.text;
 
-      await Notifications.scheduleNotificationAsync({
+      console.log('🔔 Scheduling notification:', { title, body, chatId });
+
+      const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title,
           body,
@@ -185,7 +199,12 @@ class ChatNotificationService {
         trigger: null, // Show immediately
       });
 
-      console.log('💬 Chat notification sent:', { title, body, chatId });
+      console.log('✅ Chat notification scheduled successfully:', { 
+        notificationId, 
+        title, 
+        body, 
+        chatId 
+      });
     } catch (error) {
       console.error('❌ Error sending chat notification:', error);
       // Don't throw error, just log it so the app continues to work

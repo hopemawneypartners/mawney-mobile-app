@@ -650,7 +650,9 @@ class ChatService {
       console.log('✅ Chat last message updated for all participants');
 
       // Send notification to other participants
+      console.log('🔔 About to send message notification for chat:', chatId);
       await this.sendMessageNotification(chatId, message);
+      console.log('🔔 Message notification call completed');
 
       return message;
     } catch (error) {
@@ -662,11 +664,12 @@ class ChatService {
   // Send notification for new message
   async sendMessageNotification(chatId, message) {
     try {
-      console.log('🔔 Attempting to send notification for message:', {
+      console.log('🔔 ChatService.sendMessageNotification called:', {
         chatId,
         messageId: message.id,
         senderId: message.senderId,
-        currentUserId: this.currentUser?.id
+        currentUserId: this.currentUser?.id,
+        messageText: message.text?.substring(0, 50) + '...'
       });
       
       const chat = this.chats.find(c => c.id === chatId);
@@ -700,6 +703,13 @@ class ChatService {
       });
 
       // Send notification
+      console.log('🔔 Calling ChatNotificationService.sendMessageNotification with:', {
+        senderName,
+        chatName,
+        chatId,
+        messageText: message.text?.substring(0, 50) + '...'
+      });
+      
       await ChatNotificationService.sendMessageNotification(
         message,
         senderName,
@@ -707,7 +717,7 @@ class ChatService {
         chatId
       );
 
-      console.log('✅ Notification sent for new message');
+      console.log('✅ ChatNotificationService.sendMessageNotification completed');
     } catch (error) {
       console.error('❌ Error sending message notification:', error);
     }
