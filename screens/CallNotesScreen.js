@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserService from '../services/userService';
@@ -35,6 +36,7 @@ export default function CallNotesScreen() {
   const [teamsMeetings, setTeamsMeetings] = useState([]);
   const [isTeamsAuthenticated, setIsTeamsAuthenticated] = useState(false);
   const [isLoadingTeams, setIsLoadingTeams] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadCallNotes();
@@ -115,6 +117,12 @@ export default function CallNotesScreen() {
     } catch (error) {
       console.error('Error saving call notes:', error);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadCallNotes();
+    setRefreshing(false);
   };
 
   const startCallRecording = () => {
@@ -334,7 +342,12 @@ export default function CallNotesScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.notesContainer}>
+      <ScrollView 
+        style={styles.notesContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text style={styles.sectionTitle}>Recent Notes</Text>
         {callNotes.length === 0 ? (
           <View style={styles.emptyContainer}>

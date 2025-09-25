@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserService from '../services/userService';
@@ -32,6 +33,7 @@ export default function TodosScreen() {
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
   const [editText, setEditText] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadTodos();
@@ -75,6 +77,12 @@ export default function TodosScreen() {
     } catch (error) {
       console.error('Error saving todos:', error);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadTodos();
+    setRefreshing(false);
   };
 
   const addTodo = async () => {
@@ -200,7 +208,12 @@ export default function TodosScreen() {
         </View>
       )}
 
-      <ScrollView style={styles.todosContainer}>
+      <ScrollView 
+        style={styles.todosContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {todos.map((todo, index) => (
           <View key={`todo-${todo.id}-${index}`} style={styles.todoItem}>
             <TouchableOpacity

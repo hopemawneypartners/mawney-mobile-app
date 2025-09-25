@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,6 +29,7 @@ export default function HomeScreen({ navigation }) {
     todos: 0,
     pendingTodos: 0,
   });
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -67,6 +69,12 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadStats();
+    setRefreshing(false);
+  };
+
   const handleQuickAction = (action) => {
     console.log('🔗 Home quick action pressed:', action);
     console.log('🔗 Navigation object:', navigation);
@@ -94,7 +102,12 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.greeting}>Welcome back, Hope!</Text>
         <Text style={styles.subtitle}>Here's your daily overview</Text>

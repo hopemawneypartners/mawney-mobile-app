@@ -15,6 +15,7 @@ import {
   Animated,
   Dimensions,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
@@ -62,6 +63,7 @@ export default function AIAssistantScreen() {
   const [savedJobAds, setSavedJobAds] = useState([]);
   const [editingJobAdId, setEditingJobAdId] = useState(null);
   const [editingJobAdName, setEditingJobAdName] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedJobAd, setSelectedJobAd] = useState(null);
   const [showJobAdModal, setShowJobAdModal] = useState(false);
 
@@ -463,6 +465,12 @@ export default function AIAssistantScreen() {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadSavedJobAds();
+    setRefreshing(false);
+  };
+
   const deleteJobAd = async (jobAdId) => {
     try {
       const updatedJobAds = savedJobAds.filter(jobAd => jobAd.id !== jobAdId);
@@ -615,7 +623,13 @@ export default function AIAssistantScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.responsesContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.responsesContainer} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {responses.length === 0 && (
           <View style={styles.welcomeContainer}>
             <Text style={styles.welcomeTitle}>Welcome to your AI Assistant!</Text>
