@@ -313,7 +313,7 @@ export default function ChatListScreen({ navigation }) {
             <Text style={styles.chatAvatarText}>👥</Text>
           ) : otherParticipant?.avatar && !imageError ? (
             <Image 
-              source={{ uri: otherParticipant.avatar }} 
+              source={typeof otherParticipant.avatar === 'string' ? { uri: otherParticipant.avatar } : otherParticipant.avatar} 
               style={styles.chatAvatarImage}
               onError={(error) => {
                 console.log('❌ Image load error for', otherParticipant.name, ':', error);

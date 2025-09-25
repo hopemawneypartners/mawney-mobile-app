@@ -317,7 +317,7 @@ export default function ChatScreen({ route, navigation }) {
           <View style={styles.messageAvatar}>
             {sender?.avatar ? (
               <Image 
-                source={{ uri: sender.avatar }} 
+                source={typeof sender.avatar === 'string' ? { uri: sender.avatar } : sender.avatar} 
                 style={styles.messageAvatarImage}
                 resizeMode="cover"
               />
@@ -477,7 +477,7 @@ export default function ChatScreen({ route, navigation }) {
                 <View style={styles.memberAvatar}>
                   {member.avatar ? (
                     <Image 
-                      source={{ uri: member.avatar }} 
+                      source={typeof member.avatar === 'string' ? { uri: member.avatar } : member.avatar} 
                       style={styles.memberAvatarImage}
                       resizeMode="cover"
                     />

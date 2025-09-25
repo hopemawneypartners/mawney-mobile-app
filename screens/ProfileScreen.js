@@ -159,7 +159,7 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
       <View style={styles.profileHeader}>
         <TouchableOpacity style={styles.avatarContainer} onPress={selectProfilePicture}>
           {user.avatar ? (
-            <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+            <Image source={typeof user.avatar === 'string' ? { uri: user.avatar } : user.avatar} style={styles.avatarImage} />
           ) : (
             <View style={styles.avatarPlaceholder}>
               <Text style={styles.avatarText}>◆</Text>
