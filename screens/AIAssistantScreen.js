@@ -615,7 +615,7 @@ Always use professional, confident language and demonstrate deep industry expert
         const systemMessage = {
           id: `system_${Date.now()}`,
           type: 'ai',
-          text: '🧠 I am now an expert credit industry AI assistant with comprehensive knowledge of terminology, market dynamics, and professional practices. I can define any credit term, explain complex structures like CLOs and CDOs, analyze market trends, write professional job ads, format CVs, and provide expert insights on credit investments, risk management, and career guidance.\n\n🔍 **NEW: Online Search Capability** - I can now search online for the latest articles and news using our comprehensive database of 30+ RSS feeds from Financial Times, Bloomberg, Creditflux, GlobalCapital, and more. Just ask me to search for any topic, find latest news, or get updates on specific companies or market trends!',
+                  text: '🧠 I am now an expert credit industry AI assistant with comprehensive knowledge of terminology, market dynamics, and professional practices. I can define any credit term, explain complex structures like CLOs and CDOs, analyze market trends, write professional job ads, format CVs, and provide expert insights on credit investments, risk management, and career guidance.\n\n🔍 **NEW: Online Search Capability** - I can now search online for the latest articles and news using our comprehensive database of 35+ RSS feeds from Financial Times, Bloomberg, Creditflux, GlobalCapital, With Intelligence, and more. Just ask me to search for any topic, find latest news, or get updates on specific companies or market trends!',
           timestamp: new Date()
         };
         setResponses(prev => [...prev, systemMessage]);
