@@ -77,6 +77,9 @@ export default function AIAssistantScreen() {
 
     // Load saved job ads
     loadSavedJobAds();
+    
+    // Auto-load job ad examples for AI learning
+    loadJobAdExamples();
 
     return () => {
       keyboardDidShowListener?.remove();
@@ -469,6 +472,98 @@ export default function AIAssistantScreen() {
     setRefreshing(true);
     await loadSavedJobAds();
     setRefreshing(false);
+  };
+
+  const loadJobAdExamples = async () => {
+    try {
+      console.log('📚 Loading job ad examples for AI learning...');
+      
+      // Check if we've already loaded the examples
+      const hasLoadedExamples = await AsyncStorage.getItem('ai_loaded_job_examples');
+      if (hasLoadedExamples) {
+        console.log('📚 Job ad examples already loaded');
+        return;
+      }
+
+      // Load the job ad examples file
+      const response = await fetch('https://mawney-daily-news-api.onrender.com/api/ai-assistant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `Please learn from these professional credit industry job advertisement examples. These are real examples that demonstrate proper structure, language, and format for writing effective job ads in the credit and special situations space. Use these as a reference for writing professional job advertisements.
+
+1. Special Situations Investment Analyst – VP/Director-level
+
+Our client, a top-performing credit fund are seeking to add a talented special situations investment professional to their growing team in London. This is a key hire for the fund, following several years of strong performance and AuM growth.
+
+This individual will sit within a highly talented investment team to focus on investing in both public and private special situations opportunities in Europe. The ideal candidate will therefore be able to demonstrate the following attributes:
+
+Origination, analysis and execution of special situations investment opportunities on a pan-European basis
+In-depth knowledge of the high yield, distressed debt, and special situations in public and private markets
+Strong communication in presenting investment/trade ideas to senior individuals and the investment committee
+Using a developed sourcing network to originate investment ideas - amongst the restructuring firms, advisors, law firms, bank desks, etc.
+
+Whilst our client would be seeking an individual at the Vice President-level and above, they do not wish to exclude any talented more junior candidates that may be able to demonstrate the above abilities. This will therefore suit an investment analyst who has gained experience within a similar special situations strategy – or indeed, a background in opportunistic credit, distressed debt, or capital solutions investing.
+
+This is a fantastic opportunity for a driven professional to join a highly regarded investment team.
+
+2. Leveraged Credit Trading Desk Analyst – Vice President/Director
+
+We are presently advising a leading international bank's leveraged credit trading desk in London on their ongoing 2025 recruiting effort. Having had a strong start to the year, the team is seeking to bolster the European research team with the hire of a Vice President-level leveraged credit desk analyst.
+
+Working within an impressive and highly-regarded credit sales and trading group, the role will focus on:
+
+Analysing and producing investment ideas across both public and private situations in the European Credit market
+Focus across the credit spectrum from high yield bonds and leveraged loans to stressed/event-driven and distressed credit
+Presenting trade ideas to both clients (distressed funds, credit hedge funds, real money, etc.) and the internal proprietary trading book
+Working closely with trading and sales colleagues, as well as international colleagues, to further develop the credit trading platform
+
+The successful candidate will likely have spent time in a credit research role, either on the sell side/trading desk or in a buy side role (distressed, credit hedge fund, leading asset manager). The individual hired will benefit from joining an impressive team of experienced market professionals in one of the top-performing desks in the market.
+
+3. Chief Risk Officer
+
+Our client is a leading investment manager seeking an experienced Chief Risk Officer. The role will work closely with portfolio managers and analysts to assess, monitor, and manage investment risk across a portfolio of credit and equities investments.
+
+Key Responsibilities:
+
+Act as the primary risk contact for investment team, embedding risk management in the investment process
+Conduct detailed counterparty and issuer analysis, including capital structure review, recovery modelling, and stress testing.
+Monitor and enforce issuer, sector, and rating exposure limits; challenge and advise PMs on proposed trades and position sizing
+Oversee ongoing surveillance of credit/equity exposures, producing daily and scenario-based risk reporting for senior management and the investment committee
+Assess and manage counterparty and collateral risk for OTC derivatives, repo, and prime brokerage relationships
+Support restructuring and workout situations with independent risk assessment, legal structure analysis, and downside scenario planning
+Coordinate with legal, operations, and trading to ensure appropriate documentation, collateral terms, and risk mitigation strategies are in place
+
+The ideal candidate would have 7-12 years of relevant investment risk experience ideally with time spent in distressed debt, special situations, and/or restructuring environments with strong fundamental analysis skills across credit and equity as well as experience with concentrated, illiquid, and event-driven portfolios. The individual should have advanced Excel/financial modelling skills; familiarity with risk systems and analytics tools.
+
+This is a fantastic opportunity for a senior risk professional to be part of a top-performing fund to support their continued growth.
+
+Please learn from these examples and use them as a reference for writing professional credit industry job advertisements.`,
+          context: { chat_id: 'default', is_file_learning: true, file_type: 'job_ad_examples' }
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('✅ Job ad examples loaded successfully');
+        await AsyncStorage.setItem('ai_loaded_job_examples', 'true');
+        
+        // Add a system message to show the examples were loaded
+        const systemMessage = {
+          id: `system_${Date.now()}`,
+          type: 'ai',
+          text: '📚 I have learned from professional credit industry job advertisement examples. I can now help you write high-quality job ads using proper structure, language, and format for the credit and special situations space.',
+          timestamp: new Date()
+        };
+        setResponses(prev => [...prev, systemMessage]);
+      } else {
+        console.log('⚠️ Failed to load job ad examples:', data.error);
+      }
+    } catch (error) {
+      console.error('❌ Error loading job ad examples:', error);
+    }
   };
 
   const deleteJobAd = async (jobAdId) => {
