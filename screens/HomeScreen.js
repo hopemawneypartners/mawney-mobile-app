@@ -50,7 +50,14 @@ export default function HomeScreen({ navigation }) {
       // Load article count from API
       let articleCount = 0;
       try {
-        const response = await fetch('https://mawney-daily-news-api.onrender.com/api/articles');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
+        const response = await fetch('https://mawney-daily-news-api.onrender.com/api/articles', {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
         const data = await response.json();
         if (data.success) {
           articleCount = data.articles.length;

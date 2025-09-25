@@ -116,7 +116,14 @@ export default function ArticlesScreen() {
     try {
       console.log('🔍 Checking for new articles...');
       
-      const response = await fetch(`${API_BASE_URL}/api/articles`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      const response = await fetch(`${API_BASE_URL}/api/articles`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       if (!response.ok) return;
       
       const data = await response.json();
@@ -174,7 +181,7 @@ export default function ArticlesScreen() {
       console.log('🔍 FORCE REFRESH - API should be working now!');
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
       const response = await fetch(`${API_BASE_URL}/api/articles`, {
         method: 'GET',
