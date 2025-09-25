@@ -38,10 +38,23 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
     loadUserProfile();
   }, []);
 
+  // Add focus listener to refresh profile when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation?.addListener('focus', () => {
+      console.log('📱 ProfileScreen focused, refreshing profile...');
+      loadUserProfile();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   const loadUserProfile = async () => {
     try {
       const currentUser = UserService.getCurrentUser();
       if (currentUser) {
+        console.log('👤 Loading user profile for:', currentUser.name);
+        console.log('📸 Current avatar status:', currentUser.avatar ? 'Has avatar' : 'No avatar');
+        
         setUser(prev => ({ 
           ...prev, 
           name: currentUser.name,
@@ -50,6 +63,20 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
           department: 'Mawney Partners',
           avatar: currentUser.avatar // Load avatar from server-synced user data
         }));
+        
+        // Also try to load fresh profile from server
+        console.log('🔄 Refreshing profile from server...');
+        await UserService.loadUserProfileFromServer();
+        
+        // Update with fresh data
+        const refreshedUser = UserService.getCurrentUser();
+        if (refreshedUser && refreshedUser.avatar !== currentUser.avatar) {
+          console.log('✅ Profile refreshed from server, updating avatar');
+          setUser(prev => ({ 
+            ...prev, 
+            avatar: refreshedUser.avatar
+          }));
+        }
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -146,6 +173,14 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
         <Text style={styles.userName}>{user.name}</Text>
         <Text style={styles.userRole}>{user.role}</Text>
         <Text style={styles.userEmail}>{user.email}</Text>
+        
+        {/* Refresh Profile Button */}
+        <TouchableOpacity 
+          style={styles.refreshButton} 
+          onPress={loadUserProfile}
+        >
+          <Text style={styles.refreshButtonText}>🔄 Refresh Profile</Text>
+        </TouchableOpacity>
       </View>
 
 
@@ -269,6 +304,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary,
     fontWeight: '500',
+  },
+  refreshButton: {
+    backgroundColor: colors.accent,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  refreshButtonText: {
+    color: colors.surface,
+    fontSize: 14,
+    fontWeight: '600',
   },
   quickActions: {
     padding: 20,
