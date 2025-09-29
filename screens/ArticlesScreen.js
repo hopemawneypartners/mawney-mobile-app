@@ -117,7 +117,7 @@ export default function ArticlesScreen() {
       console.log('🔍 Checking for new articles...');
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
       const response = await fetch(`${API_BASE_URL}/api/articles`, {
         signal: controller.signal
@@ -181,7 +181,7 @@ export default function ArticlesScreen() {
       console.log('🔍 FORCE REFRESH - API should be working now!');
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
       
       const response = await fetch(`${API_BASE_URL}/api/articles`, {
         method: 'GET',
@@ -576,7 +576,12 @@ export default function ArticlesScreen() {
             <TouchableOpacity style={[styles.refreshButton, { backgroundColor: '#ff6b6b', marginTop: 10 }]} onPress={async () => {
               console.log('🧪 TESTING API CONNECTION...');
               try {
-                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/health');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/health', {
+                  signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 const data = await response.json();
                 console.log('🧪 API TEST RESULT:', data);
                 Alert.alert('API Test', `API is working! Status: ${data.status}`);
@@ -590,7 +595,12 @@ export default function ArticlesScreen() {
             <TouchableOpacity style={[styles.refreshButton, { backgroundColor: '#4CAF50', marginTop: 10 }]} onPress={async () => {
               console.log('🧪 TESTING ARTICLES API...');
               try {
-                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/articles');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                const response = await fetch('https://mawney-daily-news-api.onrender.com/api/articles', {
+                  signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 const data = await response.json();
                 console.log('🧪 ARTICLES API RESULT:', data);
                 Alert.alert('Articles Test', `Found ${data.articles?.length || 0} articles. Success: ${data.success}`);

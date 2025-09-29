@@ -51,7 +51,7 @@ export default function HomeScreen({ navigation }) {
       let articleCount = 0;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
         
         const response = await fetch('https://mawney-daily-news-api.onrender.com/api/articles', {
           signal: controller.signal
