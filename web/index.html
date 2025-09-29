@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mawney Partners</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9f7f3;
+            color: #2d2926;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #004b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .header-text {
+            text-align: center;
+        }
+        
+        .header-logo {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .logo {
+            height: 30px;
+            width: auto;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .login-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+        }
+        
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d2926;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #004b35;
+        }
+        
+        .btn {
+            background: #004b35;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #266b52;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .dashboard.active {
+            display: block;
+        }
+        
+        .welcome-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 5px;
+        }
+        
+        .welcome-subtitle {
+            color: #4d4742;
+            font-size: 1rem;
+        }
+        
+        .ai-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .ai-summary h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 10px;
+        }
+        
+        .ai-summary p {
+            color: #4d4742;
+            line-height: 1.5;
+        }
+        
+        .summary-section {
+            margin-bottom: 15px;
+        }
+        
+        .summary-section h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 8px;
+        }
+        
+        .summary-section p {
+            color: #4d4742;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .summary-section ul {
+            margin-left: 20px;
+            color: #4d4742;
+        }
+        
+        .summary-section li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .action-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            color: #004b35;
+            margin-bottom: 10px;
+        }
+        
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d2926;
+        }
+        
+        .action-desc {
+            color: #4d4742;
+            font-size: 0.9rem;
+        }
+        
+        .articles-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 15px;
+        }
+        
+        .article {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+        
+        .article:last-child {
+            border-bottom: none;
+        }
+        
+        .article-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d2926;
+            margin-bottom: 8px;
+        }
+        
+        .article-meta {
+            color: #4d4742;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .article-summary {
+            color: #4d4742;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+        
+        .nav-bar {
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: #2d2926;
+            border: none;
+            background: none;
+        }
+        
+        .nav-item:visited {
+            color: #2d2926;
+            text-decoration: none;
+        }
+        
+        .nav-item:link {
+            color: #2d2926;
+            text-decoration: none;
+        }
+        
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .nav-item.active {
+            background: #004b35;
+            color: white;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .nav-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #4d4742;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>Mawney Partners</h1>
+                        <p>Your Daily Credit Intelligence Platform</p>
+                    </div>
+                    <div class="header-logo">
+                        <img src="assets/logo.png" alt="Mawney Partners Logo" class="logo">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button class="btn" onclick="login()">Sign In</button>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <div class="header">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>Mawney Partners</h1>
+                        <p>Your Daily Credit Intelligence Platform</p>
+                    </div>
+                    <div class="header-logo">
+                        <img src="assets/logo.png" alt="Mawney Partners Logo" class="logo">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <div class="welcome-title">Welcome back, <span id="userName">User</span>!</div>
+                    <div class="welcome-subtitle">Here's your daily overview</div>
+                </div>
+                
+                <!-- AI Summary -->
+                <div id="aiSummary" class="ai-summary">
+                    <h3>Daily AI Summary</h3>
+                    <p id="aiSummaryText">Loading AI analysis...</p>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="action-card" onclick="navigateTo('articles.html')">
+                        <div class="action-icon">■</div>
+                        <div class="action-title">Articles</div>
+                        <div class="action-desc">Latest credit industry news</div>
+                    </div>
+                    <div class="action-card" onclick="navigateTo('todos.html')">
+                        <div class="action-icon">✓</div>
+                        <div class="action-title">To Do List</div>
+                        <div class="action-desc">Manage your tasks</div>
+                    </div>
+                    <div class="action-card" onclick="navigateTo('calls.html')">
+                        <div class="action-icon">☎</div>
+                        <div class="action-title">Call Notes</div>
+                        <div class="action-desc">Track your conversations</div>
+                    </div>
+                    <div class="action-card" onclick="navigateTo('ai-assistant.html')">
+                        <div class="action-icon">◆</div>
+                        <div class="action-title">AI Assistant</div>
+                        <div class="action-desc">Get intelligent insights</div>
+                    </div>
+                </div>
+                
+                <!-- Additional content to ensure scrolling -->
+                <div class="articles-section">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <div class="article">
+                        <div class="article-title">Market Update: Credit Spreads Tighten</div>
+                        <div class="article-meta">Source: Bloomberg • 2 hours ago</div>
+                        <div class="article-summary">Credit spreads have tightened significantly across all sectors, with high-yield bonds showing particular strength in today's trading session.</div>
+                    </div>
+                    <div class="article">
+                        <div class="article-title">New CLO Issuance Reaches Record High</div>
+                        <div class="article-meta">Source: Creditflux • 4 hours ago</div>
+                        <div class="article-summary">Collateralized Loan Obligation issuance has reached unprecedented levels this quarter, driven by strong investor demand and favorable market conditions.</div>
+                    </div>
+                    <div class="article">
+                        <div class="article-title">Regulatory Update: FCA Announces New Guidelines</div>
+                        <div class="article-meta">Source: FCA • 6 hours ago</div>
+                        <div class="article-summary">The Financial Conduct Authority has published new guidelines for credit risk management, affecting all regulated firms in the UK.</div>
+                    </div>
+                    <div class="article">
+                        <div class="article-title">Private Credit Fund Launches $2B Strategy</div>
+                        <div class="article-meta">Source: Private Debt Investor • 8 hours ago</div>
+                        <div class="article-summary">A major private credit fund has launched a new $2 billion strategy focused on middle-market lending opportunities across Europe.</div>
+                    </div>
+                    <div class="article">
+                        <div class="article-title">Interest Rate Outlook: Central Bank Signals</div>
+                        <div class="article-meta">Source: Reuters • 10 hours ago</div>
+                        <div class="article-summary">Central bank officials have provided mixed signals on future interest rate policy, creating uncertainty in credit markets.</div>
+                    </div>
+                </div>
+                
+                <!-- Articles Section -->
+                <div id="articlesSection" class="articles-section" style="display: none;">
+                    <h2 class="section-title">Latest Articles</h2>
+                    <div id="articlesList">
+                        <div class="loading">Loading articles...</div>
+                    </div>
+                </div>
+                
+                <!-- AI Assistant Section -->
+                <div id="aiSection" class="articles-section" style="display: none;">
+                    <h2 class="section-title">AI Assistant</h2>
+                    <div id="aiChat">
+                        <div class="loading">AI Assistant loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <div class="nav-bar" id="navBar">
+            <a href="index.html" class="nav-item active">
+                <div class="nav-icon">⌂</div>
+                <div class="nav-label">Home</div>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <div class="nav-icon">◉</div>
+                <div class="nav-label">Chat</div>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <div class="nav-icon">⚙</div>
+                <div class="nav-label">Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://mawney-daily-news-api.onrender.com';
+        
+        // User data
+        let currentUser = null;
+        let articles = [];
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide nav bar by default
+            document.getElementById('navBar').style.display = 'none';
+            checkAuthStatus();
+        });
+        
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            const savedUser = localStorage.getItem('mawney_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showDashboard();
+                loadArticles();
+                loadAISummary();
+            }
+        }
+        
+        // Login function
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple user validation (in real app, this would be server-side)
+            const users = [
+                { id: 'hope_gilbert', name: 'Hope Gilbert', email: 'hg@mawneypartners.com', password: 'Hunter1972' },
+                { id: 'josh_trister', name: 'Joshua Trister', email: 'jt@mawneypartners.com', password: 'Josh123' },
+                { id: 'rachel_trister', name: 'Rachel Trister', email: 'rt@mawneypartners.com', password: 'Rachel123' },
+                { id: 'jack_dalby', name: 'Jack Dalby', email: 'jd@mawneypartners.com', password: 'Jack123' },
+                { id: 'harry_edleman', name: 'Harry Edleman', email: 'he@mawneypartners.com', password: 'Harry123' },
+                { id: 'tyler_johnson', name: 'Tyler Johnson Thomas', email: 'tt@mawneypartners.com', password: 'Tyler123' }
+            ];
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('mawney_user', JSON.stringify(user));
+                showDashboard();
+                loadArticles();
+                loadAISummary();
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+        
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            document.getElementById('navBar').style.display = 'flex';
+            document.getElementById('userName').textContent = currentUser.name;
+            
+            // Debug navigation bar
+            console.log('Showing dashboard, nav bar display:', document.getElementById('navBar').style.display);
+            
+            // Test scrolling
+            console.log('Dashboard loaded, testing scroll...');
+            const mainContent = document.querySelector('.main-content');
+            console.log('Main content height:', mainContent.scrollHeight);
+            console.log('Main content client height:', mainContent.clientHeight);
+            console.log('Can scroll:', mainContent.scrollHeight > mainContent.clientHeight);
+        }
+        
+        // Navigate to page
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        // Load articles
+        async function loadArticles() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/articles`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    articles = data.articles;
+                    displayArticles();
+                } else {
+                    document.getElementById('articlesList').innerHTML = '<div class="error">Failed to load articles</div>';
+                }
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                document.getElementById('articlesList').innerHTML = '<div class="error">Error loading articles</div>';
+            }
+        }
+        
+        // Display articles
+        function displayArticles() {
+            const articlesList = document.getElementById('articlesList');
+            
+            if (articles.length === 0) {
+                articlesList.innerHTML = '<div class="loading">No articles available</div>';
+                return;
+            }
+            
+            const articlesHTML = articles.slice(0, 10).map(article => `
+                <div class="article">
+                    <div class="article-title">${article.title || 'Untitled Article'}</div>
+                    <div class="article-meta">Source: ${article.source || 'Unknown'} • ${new Date(article.publishedAt || article.published_date || article.timestamp || article.date).toLocaleDateString()}</div>
+                    <div class="article-summary">${article.content || article.summary || 'No content available'}</div>
+                </div>
+            `).join('');
+            
+            articlesList.innerHTML = articlesHTML;
+        }
+        
+        // Load AI Summary
+        async function loadAISummary() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/ai/summary`);
+                const data = await response.json();
+                
+                if (data.success && data.summary) {
+                    const summary = data.summary;
+                    let summaryHTML = '';
+                    
+                    if (summary.executive_summary) {
+                        summaryHTML += `<div class="summary-section">
+                            <h4>Executive Summary</h4>
+                            <p>${summary.executive_summary}</p>
+                        </div>`;
+                    }
+                    
+                    if (summary.key_points && summary.key_points.length > 0) {
+                        summaryHTML += `<div class="summary-section">
+                            <h4>Key Points</h4>
+                            <ul>`;
+                        summary.key_points.forEach(point => {
+                            summaryHTML += `<li>${point}</li>`;
+                        });
+                        summaryHTML += `</ul></div>`;
+                    }
+                    
+                    if (summary.market_insights) {
+                        summaryHTML += `<div class="summary-section">
+                            <h4>Market Insights</h4>
+                            <p>${summary.market_insights}</p>
+                        </div>`;
+                    }
+                    
+                    if (summaryHTML === '') {
+                        summaryHTML = '<p>AI analysis completed</p>';
+                    }
+                    
+                    document.getElementById('aiSummaryText').innerHTML = summaryHTML;
+                } else {
+                    document.getElementById('aiSummaryText').innerHTML = '<p>AI summary not available</p>';
+                }
+            } catch (error) {
+                console.error('Error loading AI summary:', error);
+                document.getElementById('aiSummaryText').innerHTML = '<p>Error loading AI summary</p>';
+            }
+        }
+        
+        // Show section
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('[id$="Section"]').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show selected section
+            if (section === 'articles') {
+                document.getElementById('articlesSection').style.display = 'block';
+                if (articles.length === 0) {
+                    loadArticles();
+                }
+            } else if (section === 'ai') {
+                document.getElementById('aiSection').style.display = 'block';
+            }
+        }
+        
+        // Navigation
+        function showNav(nav) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            event.target.closest('.nav-item').classList.add('active');
+            
+            if (nav === 'home') {
+                showSection('home');
+            } else if (nav === 'chat') {
+                showSection('ai');
+            } else if (nav === 'profile') {
+                alert('Profile section coming soon!');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('mawney_user');
+            currentUser = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('navBar').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do List - Mawney Partners</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9f7f3;
+            color: #2d2926;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #004b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .header-text {
+            text-align: center;
+        }
+        
+        .header-logo {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }        
+        .header-text {
+            flex: 1;
+        }
+        
+        .header-logo {
+            margin-left: 20px;
+        }
+        
+        .logo {
+            height: 30px;
+            width: auto;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .add-todo-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .add-todo-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .todo-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .add-button {
+            background: #004b35;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .todos-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 15px;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        
+        .todo-checkbox {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+        
+        .todo-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+        
+        .todo-text.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .delete-button {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .nav-bar {
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: #2d2926;
+            border: none;
+            background: none;
+        }
+        
+        .nav-item:visited {
+            color: #2d2926;
+            text-decoration: none;
+        }
+        
+        .nav-item:link {
+            color: #2d2926;
+            text-decoration: none;
+        }        
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .nav-item.active {
+            background: #004b35;
+            color: white;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .nav-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #4d4742;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <button class="back-button" onclick="goBack()">←</button>
+            <div class="header-content"><div class="header-text"><h1>To Do List</h1>
+            <p>Manage Your Tasks</p></div><div class="header-logo"><img src="assets/logo.png" alt="Mawney Partners Logo" class="logo"></div></div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Add Todo Section -->
+            <div class="add-todo-section">
+                <div class="add-todo-form">
+                    <input type="text" class="todo-input" placeholder="Add a new task..." id="newTodoInput">
+                    <button class="add-button" onclick="addTodo()">Add</button>
+                </div>
+            </div>
+            
+            <!-- Todos List -->
+            <div class="todos-section">
+                <h2 class="section-title">Your Tasks</h2>
+                <div id="todosList">
+                    <div class="empty-state">No tasks yet. Add one above!</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">⌂</div>
+                <div class="nav-label">Home</div>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <div class="nav-icon">◉</div>
+                <div class="nav-label">Chat</div>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <div class="nav-icon">⚙</div>
+                <div class="nav-label">Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // User data
+        let currentUser = null;
+        let todos = [];
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadTodos();
+            setupEnterKey();
+        });
+        
+        // Check if user is logged in
+        function checkAuthStatus() {
+            const savedUser = localStorage.getItem('mawney_user');
+            if (!savedUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = JSON.parse(savedUser);
+        }
+        
+        // Go back to home
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+        
+        // Load todos from localStorage
+        function loadTodos() {
+            const savedTodos = localStorage.getItem(`todos_${currentUser.id}`);
+            if (savedTodos) {
+                todos = JSON.parse(savedTodos);
+            }
+            displayTodos();
+        }
+        
+        // Save todos to localStorage
+        function saveTodos() {
+            localStorage.setItem(`todos_${currentUser.id}`, JSON.stringify(todos));
+        }
+        
+        // Display todos
+        function displayTodos() {
+            const todosList = document.getElementById('todosList');
+            
+            if (todos.length === 0) {
+                todosList.innerHTML = '<div class="empty-state">No tasks yet. Add one above!</div>';
+                return;
+            }
+            
+            const todosHTML = todos.map((todo, index) => `
+                <div class="todo-item">
+                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} 
+                           onchange="toggleTodo(${index})">
+                    <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
+                    <button class="delete-button" onclick="deleteTodo(${index})">Delete</button>
+                </div>
+            `).join('');
+            
+            todosList.innerHTML = todosHTML;
+        }
+        
+        // Add new todo
+        function addTodo() {
+            const input = document.getElementById('newTodoInput');
+            const text = input.value.trim();
+            
+            if (text === '') {
+                alert('Please enter a task');
+                return;
+            }
+            
+            todos.push({
+                text: text,
+                completed: false,
+                createdAt: new Date().toISOString()
+            });
+            
+            input.value = '';
+            saveTodos();
+            displayTodos();
+        }
+        
+        // Toggle todo completion
+        function toggleTodo(index) {
+            todos[index].completed = !todos[index].completed;
+            saveTodos();
+            displayTodos();
+        }
+        
+        // Delete todo
+        function deleteTodo(index) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                todos.splice(index, 1);
+                saveTodos();
+                displayTodos();
+            }
+        }
+        
+        // Setup enter key for input
+        function setupEnterKey() {
+            const input = document.getElementById('newTodoInput');
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

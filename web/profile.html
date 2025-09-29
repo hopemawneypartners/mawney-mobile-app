@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Mawney Partners</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9f7f3;
+            color: #2d2926;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #004b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .header-text {
+            text-align: center;
+        }
+        
+        .header-logo {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }        
+        .header-text {
+            flex: 1;
+        }
+        
+        .header-logo {
+            margin-left: 20px;
+        }
+        
+        .logo {
+            height: 30px;
+            width: auto;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .profile-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #004b35;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 2rem;
+            margin: 0 auto 15px;
+            overflow: hidden;
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d2926;
+            margin-bottom: 5px;
+        }
+        
+        .profile-email {
+            color: #4d4742;
+            font-size: 1rem;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .action-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            color: #004b35;
+            margin-bottom: 10px;
+        }
+        
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d2926;
+        }
+        
+        .action-desc {
+            color: #4d4742;
+            font-size: 0.9rem;
+        }
+        
+        .settings-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #004b35;
+            margin-bottom: 15px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            font-weight: 600;
+            color: #2d2926;
+        }
+        
+        .setting-value {
+            color: #4d4742;
+        }
+        
+        .logout-button {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .nav-bar {
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: #2d2926;
+            border: none;
+            background: none;
+        }
+        
+        .nav-item:visited {
+            color: #2d2926;
+            text-decoration: none;
+        }
+        
+        .nav-item:link {
+            color: #2d2926;
+            text-decoration: none;
+        }        
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .nav-item.active {
+            background: #004b35;
+            color: white;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .nav-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <button class="back-button" onclick="goBack()">←</button>
+            <div class="header-content"><div class="header-text"><h1>Profile</h1>
+            <p>Your Account Settings</p></div><div class="header-logo"><img src="assets/logo.png" alt="Mawney Partners Logo" class="logo"></div></div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Profile Section -->
+            <div class="profile-section">
+                <div class="profile-avatar" id="profileAvatar">
+                    <img id="profileImage" src="" alt="Profile Picture" style="display: none;">
+                    <span id="profileInitial">H</span>
+                </div>
+                <div class="profile-name" id="profileName">Hope Gilbert</div>
+                <div class="profile-email" id="profileEmail">hg@mawneypartners.com</div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="action-card" onclick="navigateTo('ai-assistant.html')">
+                    <div class="action-icon">◆</div>
+                    <div class="action-title">AI Assistant</div>
+                    <div class="action-desc">Get intelligent insights</div>
+                </div>
+                
+                <div class="action-card" onclick="navigateTo('calls.html')">
+                    <div class="action-icon">☎</div>
+                    <div class="action-title">Call Notes</div>
+                    <div class="action-desc">Track conversations</div>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div class="settings-section">
+                <h2 class="section-title">Settings</h2>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Notifications</div>
+                    <div class="setting-value">Enabled</div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Dark Mode</div>
+                    <div class="setting-value">Off</div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-label">Language</div>
+                    <div class="setting-value">English</div>
+                </div>
+            </div>
+            
+            <!-- Logout Button -->
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">⌂</div>
+                <div class="nav-label">Home</div>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <div class="nav-icon">◉</div>
+                <div class="nav-label">Chat</div>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <div class="nav-icon">⚙</div>
+                <div class="nav-label">Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // User data
+        let currentUser = null;
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadUserProfile();
+        });
+        
+        // Check if user is logged in
+        function checkAuthStatus() {
+            const savedUser = localStorage.getItem('mawney_user');
+            if (!savedUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = JSON.parse(savedUser);
+        }
+        
+        // Go back to home
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+        
+        // Load user profile
+        function loadUserProfile() {
+            if (currentUser) {
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileEmail').textContent = currentUser.email;
+                
+                // Set profile image or initial
+                const profileImage = document.getElementById('profileImage');
+                const profileInitial = document.getElementById('profileInitial');
+                
+                // Map user names to profile images
+                const profileImages = {
+                    'Hope Gilbert': 'assets/profile-pictures/hope.jpg',
+                    'Joshua Trister': 'assets/profile-pictures/josh.jpg',
+                    'Rachel Trister': 'assets/profile-pictures/rachel.jpg',
+                    'Jack Dalby': 'assets/profile-pictures/jack.jpg',
+                    'Harry Edleman': 'assets/profile-pictures/harry.jpg',
+                    'Tyler Johnson Thomas': 'assets/profile-pictures/tyler.jpg'
+                };
+                
+                if (profileImages[currentUser.name]) {
+                    profileImage.src = profileImages[currentUser.name];
+                    profileImage.style.display = 'block';
+                    profileInitial.style.display = 'none';
+                } else {
+                    profileInitial.textContent = currentUser.name.charAt(0).toUpperCase();
+                    profileImage.style.display = 'none';
+                    profileInitial.style.display = 'block';
+                }
+            }
+        }
+        
+        // Navigate to page
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('mawney_user');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

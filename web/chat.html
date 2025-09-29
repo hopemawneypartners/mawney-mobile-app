@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Mawney Partners</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9f7f3;
+            color: #2d2926;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #004b35;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .chat-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .chat-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #004b35;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+        
+        .chat-info {
+            flex: 1;
+        }
+        
+        .chat-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .chat-last-message {
+            color: #4d4742;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .chat-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .new-chat-button {
+            background: #004b35;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .nav-bar {
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            color: #2d2926;
+            border: none;
+            background: none;
+        }
+        
+        .nav-item:visited {
+            color: #2d2926;
+            text-decoration: none;
+        }
+        
+        .nav-item:link {
+            color: #2d2926;
+            text-decoration: none;
+        }        
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .nav-item.active {
+            background: #004b35;
+            color: white;
+        }
+        
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .nav-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #4d4742;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <button class="back-button" onclick="goBack()">←</button>
+            <div class="header-content"><div class="header-text"><h1>Chat</h1>
+            <p>Team Communication</p></div><div class="header-logo"><img src="assets/logo.png" alt="Mawney Partners Logo" class="logo"></div></div>
+        </div>
+        
+        <div class="main-content">
+            <!-- New Chat Button -->
+            <button class="new-chat-button" onclick="createNewChat()">+ New Chat</button>
+            
+            <!-- Chat List -->
+            <div class="chat-list" id="chatList">
+                <div class="empty-state">No chats yet. Create a new chat to get started!</div>
+            </div>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">⌂</div>
+                <div class="nav-label">Home</div>
+            </a>
+            <a href="chat.html" class="nav-item active">
+                <div class="nav-icon">◉</div>
+                <div class="nav-label">Chat</div>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <div class="nav-icon">⚙</div>
+                <div class="nav-label">Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // User data
+        let currentUser = null;
+        let chats = [];
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadChats();
+        });
+        
+        // Check if user is logged in
+        function checkAuthStatus() {
+            const savedUser = localStorage.getItem('mawney_user');
+            if (!savedUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = JSON.parse(savedUser);
+        }
+        
+        // Go back to home
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+        
+        // Load chats from localStorage
+        function loadChats() {
+            const savedChats = localStorage.getItem(`chats_${currentUser.id}`);
+            if (savedChats) {
+                chats = JSON.parse(savedChats);
+            }
+            displayChats();
+        }
+        
+        // Save chats to localStorage
+        function saveChats() {
+            localStorage.setItem(`chats_${currentUser.id}`, JSON.stringify(chats));
+        }
+        
+        // Display chats
+        function displayChats() {
+            const chatList = document.getElementById('chatList');
+            
+            if (chats.length === 0) {
+                chatList.innerHTML = '<div class="empty-state">No chats yet. Create a new chat to get started!</div>';
+                return;
+            }
+            
+            const chatsHTML = chats.map((chat, index) => `
+                <div class="chat-item" onclick="openChat(${index})">
+                    <div class="chat-avatar">${chat.name.charAt(0).toUpperCase()}</div>
+                    <div class="chat-info">
+                        <div class="chat-name">${chat.name}</div>
+                        <div class="chat-last-message">${chat.lastMessage || 'No messages yet'}</div>
+                    </div>
+                    <div class="chat-time">${formatTime(chat.lastActivity)}</div>
+                </div>
+            `).join('');
+            
+            chatList.innerHTML = chatsHTML;
+        }
+        
+        // Create new chat
+        function createNewChat() {
+            const chatName = prompt('Enter chat name:');
+            if (!chatName || chatName.trim() === '') {
+                return;
+            }
+            
+            const newChat = {
+                id: Date.now(),
+                name: chatName.trim(),
+                participants: [currentUser.id],
+                messages: [],
+                lastMessage: null,
+                lastActivity: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            };
+            
+            chats.push(newChat);
+            saveChats();
+            displayChats();
+        }
+        
+        // Open chat (placeholder for now)
+        function openChat(index) {
+            const chat = chats[index];
+            alert(`Opening chat: ${chat.name}\n\nThis would open the chat interface. For now, this is a placeholder.`);
+        }
+        
+        // Format time
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffInHours = (now - date) / (1000 * 60 * 60);
+            
+            if (diffInHours < 1) {
+                return 'Just now';
+            } else if (diffInHours < 24) {
+                return `${Math.floor(diffInHours)}h ago`;
+            } else {
+                return date.toLocaleDateString();
+            }
+        }
+    </script>
+</body>
+</html>
