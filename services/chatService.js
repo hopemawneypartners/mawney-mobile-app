@@ -62,6 +62,11 @@ class ChatService {
   // Load all chats for current user
   async loadChats() {
     try {
+      // Show alert to confirm loadChats is being called
+      if (typeof alert !== 'undefined') {
+        alert('📥 loadChats called...');
+      }
+      
       if (!this.currentUser || !this.currentUser.id) {
         console.error('❌ Cannot load chats: currentUser is null or has no ID');
         console.error('❌ Current user:', this.currentUser);
@@ -111,6 +116,12 @@ class ChatService {
       
       // Load chats from server in background (non-blocking)
       console.log('🔄 Starting server sync for user:', this.currentUser.id);
+      
+      // Show alert to confirm server sync is being triggered
+      if (typeof alert !== 'undefined') {
+        alert('🔄 Starting server sync...');
+      }
+      
       this.loadAIChatsFromServer().catch(error => {
         console.log('Background AI chat sync failed:', error.message);
       });
