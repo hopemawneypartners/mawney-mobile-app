@@ -37,6 +37,11 @@ export default function CallNotesScreen() {
   const [isTeamsAuthenticated, setIsTeamsAuthenticated] = useState(false);
   const [isLoadingTeams, setIsLoadingTeams] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editTime, setEditTime] = useState('');
 
   useEffect(() => {
     loadCallNotes();
@@ -263,6 +268,50 @@ export default function CallNotesScreen() {
     );
   };
 
+  const openNotePopup = (note) => {
+    setSelectedNote(note);
+    setEditTitle(note.title || '');
+    setEditDate(note.date || '');
+    setEditTime(note.time || '');
+    setIsEditing(false);
+  };
+
+  const closeNotePopup = () => {
+    setSelectedNote(null);
+    setIsEditing(false);
+  };
+
+  const startEditing = () => {
+    setIsEditing(true);
+  };
+
+  const saveEdit = () => {
+    if (selectedNote) {
+      const updatedNotes = callNotes.map(note => 
+        note.id === selectedNote.id 
+          ? { 
+              ...note, 
+              title: editTitle,
+              date: editDate,
+              time: editTime,
+              updatedAt: new Date().toISOString()
+            }
+          : note
+      );
+      setCallNotes(updatedNotes);
+      saveCallNotes(updatedNotes);
+      setSelectedNote({ ...selectedNote, title: editTitle, date: editDate, time: editTime });
+      setIsEditing(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditTitle(selectedNote?.title || '');
+    setEditDate(selectedNote?.date || '');
+    setEditTime(selectedNote?.time || '');
+    setIsEditing(false);
+  };
+
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
@@ -385,10 +434,13 @@ export default function CallNotesScreen() {
           </View>
         ) : (
           callNotes.map((note) => (
-            <View key={note.id} style={styles.noteCard}>
+            <TouchableOpacity key={note.id} style={styles.noteCard} onPress={() => openNotePopup(note)}>
               <View style={styles.noteHeader}>
                 <Text style={styles.noteTitle}>{note.title}</Text>
-                <TouchableOpacity onPress={() => deleteNote(note.id)}>
+                <TouchableOpacity onPress={(e) => {
+                  e.stopPropagation();
+                  deleteNote(note.id);
+                }}>
                   <Text style={styles.deleteButton}>×</Text>
                 </TouchableOpacity>
               </View>
@@ -396,20 +448,112 @@ export default function CallNotesScreen() {
               {note.transcription && (
                 <View style={styles.transcriptionSection}>
                   <Text style={styles.transcriptionLabel}>Transcription:</Text>
-                  <Text style={styles.transcriptionText}>{note.transcription}</Text>
+                  <Text style={styles.transcriptionText} numberOfLines={2}>{note.transcription}</Text>
                 </View>
               )}
               {note.notes && (
                 <View style={styles.notesSection}>
                   <Text style={styles.notesLabel}>Notes:</Text>
-                  <Text style={styles.notesText}>{note.notes}</Text>
+                  <Text style={styles.notesText} numberOfLines={2}>{note.notes}</Text>
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
           ))
         )}
       </ScrollView>
       </View>
+
+      {/* Note Details Popup */}
+      {selectedNote && (
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupContainer}>
+            <View style={styles.popupHeader}>
+              <Text style={styles.popupTitle}>Call Note Details</Text>
+              <TouchableOpacity onPress={closeNotePopup}>
+                <Text style={styles.closeButton}>×</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.popupContent}>
+              {/* Editable Fields */}
+              <View style={styles.editSection}>
+                <Text style={styles.editLabel}>Title:</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={styles.editInput}
+                    value={editTitle}
+                    onChangeText={setEditTitle}
+                    placeholder="Enter call title"
+                  />
+                ) : (
+                  <Text style={styles.editDisplay}>{selectedNote.title}</Text>
+                )}
+              </View>
+              
+              <View style={styles.editSection}>
+                <Text style={styles.editLabel}>Date:</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={styles.editInput}
+                    value={editDate}
+                    onChangeText={setEditDate}
+                    placeholder="YYYY-MM-DD"
+                  />
+                ) : (
+                  <Text style={styles.editDisplay}>{selectedNote.date}</Text>
+                )}
+              </View>
+              
+              <View style={styles.editSection}>
+                <Text style={styles.editLabel}>Time:</Text>
+                {isEditing ? (
+                  <TextInput
+                    style={styles.editInput}
+                    value={editTime}
+                    onChangeText={setEditTime}
+                    placeholder="HH:MM"
+                  />
+                ) : (
+                  <Text style={styles.editDisplay}>{selectedNote.time}</Text>
+                )}
+              </View>
+              
+              {/* Full Transcription */}
+              {selectedNote.transcription && (
+                <View style={styles.transcriptionSection}>
+                  <Text style={styles.transcriptionLabel}>Full Transcription:</Text>
+                  <Text style={styles.fullTranscriptionText}>{selectedNote.transcription}</Text>
+                </View>
+              )}
+              
+              {/* Notes */}
+              {selectedNote.notes && (
+                <View style={styles.notesSection}>
+                  <Text style={styles.notesLabel}>Notes:</Text>
+                  <Text style={styles.fullNotesText}>{selectedNote.notes}</Text>
+                </View>
+              )}
+            </ScrollView>
+            
+            <View style={styles.popupActions}>
+              {isEditing ? (
+                <>
+                  <TouchableOpacity style={styles.cancelButton} onPress={cancelEdit}>
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.saveButton} onPress={saveEdit}>
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity style={styles.editButton} onPress={startEditing}>
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -781,5 +925,134 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.text,
     lineHeight: 20,
+  },
+  popupOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  popupContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    width: '90%',
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  popupHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  popupTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  closeButton: {
+    fontSize: 24,
+    color: colors.textSecondary,
+    fontWeight: 'bold',
+  },
+  popupContent: {
+    maxHeight: 400,
+    padding: 20,
+  },
+  editSection: {
+    marginBottom: 16,
+  },
+  editLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  editInput: {
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: colors.surface,
+  },
+  editDisplay: {
+    fontSize: 16,
+    color: colors.text,
+    paddingVertical: 8,
+  },
+  fullTranscriptionText: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    backgroundColor: '#f9f9f9',
+    padding: 12,
+    borderRadius: 8,
+  },
+  fullNotesText: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    backgroundColor: '#f9f9f9',
+    padding: 12,
+    borderRadius: 8,
+  },
+  popupActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  editButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: 'center',
+  },
+  editButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  cancelButtonText: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButton: {
+    backgroundColor: colors.success,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
