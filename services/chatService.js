@@ -158,7 +158,7 @@ class ChatService {
   // Load user-to-user chats from server
   async loadUserChatsFromServer() {
     try {
-      console.log('🔄 Loading user chats from server for:', this.currentUser.id);
+      console.log('🚀 STARTING loadUserChatsFromServer for user:', this.currentUser.id);
       console.log('🌐 API URL:', `${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
       
       const response = await fetch(`${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
@@ -168,10 +168,14 @@ class ChatService {
       console.log('📡 Server response data:', data);
       
       if (data.success && data.chats) {
+        console.log('📡 Raw server chats:', data.chats);
+        
         // Filter out AI chats and group chats, only get user-to-user chats
         const userToUserChats = data.chats.filter(chat => 
           chat.type !== 'ai_assistant' && chat.type !== 'group'
         );
+        
+        console.log('📡 Filtered user-to-user chats:', userToUserChats);
         
         if (userToUserChats.length > 0) {
           // Remove existing user-to-user chats from local storage and add server ones
