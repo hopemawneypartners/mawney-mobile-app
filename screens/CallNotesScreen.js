@@ -155,17 +155,41 @@ export default function CallNotesScreen() {
   const simulateTranscription = () => {
     // This simulates real-time transcription
     // In a real app, you'd integrate with speech-to-text APIs
-    const sampleTranscription = "Hello, this is a sample transcription of the call. The caller is discussing investment opportunities in the credit markets. They mentioned several key points about market conditions and potential deals.";
+    const sampleTranscriptions = [
+      "Hello, this is John from ABC Corp. How are you today?",
+      "I wanted to discuss the quarterly results and our upcoming projects.",
+      "The market conditions have been challenging, but we're seeing some positive trends.",
+      "What are your thoughts on the new regulatory changes?",
+      "I think we should schedule a follow-up meeting next week.",
+      "Thank you for your time today. I'll send you the summary by email."
+    ];
     
-    setTimeout(() => {
-      if (currentCall) {
+    let currentIndex = 0;
+    let currentText = "";
+    
+    const transcriptionInterval = setInterval(() => {
+      if (currentCall && currentIndex < sampleTranscriptions.length) {
+        currentText += sampleTranscriptions[currentIndex] + " ";
         setCurrentCall(prev => ({
           ...prev,
-          transcription: sampleTranscription
+          transcription: currentText
         }));
-        setIsTranscribing(false);
+        currentIndex++;
+      } else if (currentCall) {
+        // Add more realistic transcription
+        currentText += "The call is continuing... ";
+        setCurrentCall(prev => ({
+          ...prev,
+          transcription: currentText
+        }));
       }
     }, 3000);
+    
+    // Store interval ID for cleanup
+    setCurrentCall(prev => ({
+      ...prev,
+      transcriptionInterval: transcriptionInterval
+    }));
   };
 
   const stopCallRecording = () => {
@@ -179,6 +203,11 @@ export default function CallNotesScreen() {
           onPress: () => {
             setIsRecording(false);
             if (currentCall) {
+              // Clear transcription interval
+              if (currentCall.transcriptionInterval) {
+                clearInterval(currentCall.transcriptionInterval);
+              }
+              
               const updatedCall = {
                 ...currentCall,
                 endTime: new Date().toISOString(),
