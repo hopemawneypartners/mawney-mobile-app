@@ -117,7 +117,7 @@ export default function ArticlesScreen() {
       console.log('🔍 Checking for new articles...');
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
       
       const response = await fetch(`${API_BASE_URL}/api/articles`, {
         signal: controller.signal
@@ -181,7 +181,7 @@ export default function ArticlesScreen() {
       console.log('🔍 FORCE REFRESH - API should be working now!');
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
       
       const response = await fetch(`${API_BASE_URL}/api/articles`, {
         method: 'GET',
