@@ -826,6 +826,9 @@ class ChatService {
       // Add chat to current user's chat list
       this.chats.push(newChat);
       await this.saveChats();
+      
+      // Sync to server
+      await this.saveUserChatsToServer();
 
       // Save group chat to shared storage
       await this.saveSharedGroupChat(newChat);
@@ -872,6 +875,9 @@ class ChatService {
 
       this.chats.push(newChat);
       await this.saveChats();
+      
+      // Sync to server
+      await this.saveUserChatsToServer();
 
       return newChat;
     } catch (error) {
