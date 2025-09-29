@@ -183,6 +183,17 @@ class ChatService {
             );
             const updatedChats = [...nonUserChats, ...userToUserChats];
             await AsyncStorage.setItem(`${CHAT_STORAGE_KEY}_${this.currentUser.id}`, JSON.stringify(updatedChats));
+            
+            // Update the current chats array and reload
+            this.chats = updatedChats;
+            console.log('📱 Updated chats array with server data:', this.chats.length);
+            
+            // Emit event to notify UI that chats have been updated
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+              window.dispatchEvent(new CustomEvent('chatsUpdated', { 
+                detail: { source: 'server_sync', chatCount: this.chats.length } 
+              }));
+            }
           }
           
           console.log('📱 Loaded user-to-user chats from server:', userToUserChats.length);

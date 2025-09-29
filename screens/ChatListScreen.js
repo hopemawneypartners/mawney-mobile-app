@@ -64,10 +64,24 @@ export default function ChatListScreen({ navigation }) {
       }
     };
     
+    // Listen for server sync updates
+    const handleChatsUpdated = (event) => {
+      console.log('📱 ChatListScreen - Chats updated from server sync:', event.detail);
+      loadChats();
+    };
+    
     ChatPollingService.addListener(handlePollingUpdate);
+    
+    // Add event listener for server sync updates
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('chatsUpdated', handleChatsUpdated);
+    }
     
     return () => {
       ChatPollingService.removeListener(handlePollingUpdate);
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('chatsUpdated', handleChatsUpdated);
+      }
     };
   }, []);
 
