@@ -6,6 +6,9 @@ import { View, Text, StyleSheet, StatusBar, Alert, Platform, Image } from 'react
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserService from './services/userService';
+import ChatService from './services/chatService';
+import CrossPlatformAuth from './services/crossPlatformAuth';
+import WebService from './services/webService';
 import NotificationService from './services/notificationService';
 import NotificationPollingService from './services/notificationPollingService';
 import BackgroundTaskService from './services/backgroundTaskService';
@@ -131,11 +134,20 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    checkAuthStatus();
-    initializeNotifications();
-    initializeChatPolling();
+    try {
+      console.log('🚀 App starting...');
+      initializeCrossPlatformAuth();
+      initializeWebService();
+      initializeNotifications();
+      initializeChatPolling();
+    } catch (err) {
+      console.error('❌ App initialization error:', err);
+      setError(err.message);
+      setIsLoading(false);
+    }
   }, []);
 
   const initializeNotifications = async () => {
@@ -213,23 +225,63 @@ export default function App() {
     }
   };
 
-  const checkAuthStatus = async () => {
+  const initializeCrossPlatformAuth = async () => {
     try {
-      const user = await UserService.loadCurrentUser();
-      if (user) {
+      console.log('🌐 Initializing cross-platform authentication...');
+      
+      // Initialize cross-platform auth
+      await CrossPlatformAuth.initialize();
+      
+      // Check if user is logged in
+      const isLoggedIn = await CrossPlatformAuth.isLoggedIn();
+      const user = await CrossPlatformAuth.getCurrentUser();
+      
+      if (isLoggedIn && user) {
+        console.log('✅ User already logged in:', user.name);
         setIsLoggedIn(true);
         setCurrentUser(user);
+        
+        // Also set in UserService for compatibility
+        UserService.currentUser = user;
+        await UserService.saveCurrentUser();
+      } else {
+        console.log('ℹ️ No user logged in');
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error('❌ Error initializing cross-platform auth:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogin = (user) => {
-    setIsLoggedIn(true);
-    setCurrentUser(user);
+  const initializeWebService = async () => {
+    try {
+      console.log('🌐 Initializing web service...');
+      await WebService.initialize();
+      console.log('✅ Web service initialized');
+    } catch (error) {
+      console.error('❌ Error initializing web service:', error);
+    }
+  };
+
+  const handleLogin = async (user) => {
+    try {
+      console.log('🔐 User logging in:', user.name);
+      
+      // Set user in cross-platform auth
+      await CrossPlatformAuth.setUser(user);
+      
+      // Also set in UserService for compatibility
+      UserService.currentUser = user;
+      await UserService.saveCurrentUser();
+      
+      setIsLoggedIn(true);
+      setCurrentUser(user);
+      
+      console.log('✅ Login successful across platforms');
+    } catch (error) {
+      console.error('❌ Error during login:', error);
+    }
   };
 
   const handleLogout = () => {
@@ -243,17 +295,36 @@ export default function App() {
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log('🚪 User logging out...');
+              
+              // Clear from cross-platform auth
+              await CrossPlatformAuth.clearUser();
+              
+              // Also clear from UserService for compatibility
               await UserService.logout();
+              
               setIsLoggedIn(false);
               setCurrentUser(null);
+              
+              console.log('✅ Logout successful across platforms');
             } catch (error) {
-              console.error('Error during logout:', error);
+              console.error('❌ Error during logout:', error);
             }
           }
         }
       ]
     );
   };
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Mawney Partners</Text>
+        <Text style={styles.loadingSubtext}>Error: {error}</Text>
+        <Text style={styles.loadingSubtext}>Check console for details</Text>
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (

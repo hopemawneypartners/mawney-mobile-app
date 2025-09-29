@@ -27,9 +27,15 @@ export default function DailySummary({ articles }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConfigured, setIsConfigured] = useState(false);
+  const [componentError, setComponentError] = useState(null);
 
   useEffect(() => {
-    checkConfiguration();
+    try {
+      checkConfiguration();
+    } catch (error) {
+      console.error('❌ DailySummary configuration error:', error);
+      setComponentError(error.message);
+    }
   }, []);
 
   // Regenerate summary when articles change
@@ -45,19 +51,25 @@ export default function DailySummary({ articles }) {
 
   // Auto-generate summary when articles are available
   useEffect(() => {
-    console.log('📊 DailySummary useEffect triggered:', {
-      articlesCount: articles?.length || 0,
-      isConfigured,
-      hasSummary: !!summary,
-      loading
-    });
-    
-    // Always try to generate summary when articles are available
-    if (articles && articles.length > 0 && isConfigured && !loading && !summary) {
-      console.log('📊 Auto-generating summary for articles - FORCE REFRESH 3.3');
-      generateSummary();
+    try {
+      console.log('🌐 Web DailySummary useEffect triggered:', {
+        articlesCount: articles?.length || 0,
+        isConfigured,
+        platform: 'web',
+        hasSummary: !!summary,
+        loading,
+      });
+      
+      // Always try to generate summary when articles are available
+      if (articles && articles.length > 0 && isConfigured && !loading && !summary) {
+        console.log('📊 Auto-generating summary for articles - FORCE REFRESH 3.3');
+        generateSummary();
+      }
+    } catch (error) {
+      console.error('❌ DailySummary useEffect error:', error);
+      setComponentError(error.message);
     }
-  }, [articles, isConfigured, loading, summary, generateSummary]);
+  }, [articles, isConfigured, loading, summary]);
 
   const checkConfiguration = async () => {
     const configured = await AIService.initialize();
@@ -65,9 +77,9 @@ export default function DailySummary({ articles }) {
   };
 
   const generateSummary = useCallback(async () => {
-    console.log('🔄 Generating summary with', articles?.length || 0, 'articles');
-    console.log('🔄 FORCE REFRESH 3.2 - AI Summary should work now!');
-    console.log('🔄 Articles being passed to AI:', articles);
+    console.log('🌐 Web generateSummary called with', articles?.length || 0, 'articles');
+    console.log('🌐 Web FORCE REFRESH 3.2 - AI Summary should work now!');
+    console.log('🌐 Web Articles being passed to AI:', articles);
     setLoading(true);
     setError(null);
 
@@ -99,6 +111,30 @@ export default function DailySummary({ articles }) {
     return point.replace(/^[•\-\*]\s*/, '').trim();
   };
 
+
+  // Show error if component has crashed
+  if (componentError) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Daily AI Summary</Text>
+          <Text style={styles.subtitle}>Error</Text>
+        </View>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Component Error: {componentError}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton} 
+            onPress={() => {
+              setComponentError(null);
+              checkConfiguration();
+            }}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -347,5 +383,28 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontSize: 12,
     fontWeight: '600',
+  },
+  errorContainer: {
+    padding: 16,
+    backgroundColor: colors.error + '20',
+    borderRadius: 8,
+    margin: 16,
+  },
+  errorText: {
+    fontSize: 14,
+    color: colors.error,
+    marginBottom: 12,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  retryButtonText: {
+    color: colors.surface,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

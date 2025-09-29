@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import UserService from '../services/userService';
+import WebScrollView from '../components/WebScrollView';
 
 const colors = {
   primary: '#004b35',
@@ -30,13 +32,21 @@ export default function HomeScreen({ navigation }) {
     pendingTodos: 0,
   });
   const [refreshing, setRefreshing] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    loadCurrentUser();
     loadStats();
   }, []);
 
+  const loadCurrentUser = () => {
+    const user = UserService.getCurrentUser();
+    setCurrentUser(user);
+  };
+
   useFocusEffect(
     React.useCallback(() => {
+      loadCurrentUser();
       loadStats();
     }, [])
   );
@@ -109,14 +119,24 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScrollView 
+    <WebScrollView 
       style={styles.container}
+      contentContainerStyle={styles.scrollContent}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      bounces={true}
+      scrollEnabled={true}
+      showsVerticalScrollIndicator={true}
+      nestedScrollEnabled={true}
+      keyboardShouldPersistTaps="handled"
+      alwaysBounceVertical={false}
+      overScrollMode="auto"
+      removeClippedSubviews={false}
+      scrollEventThrottle={16}
     >
       <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome back, Hope!</Text>
+        <Text style={styles.greeting}>Welcome back, {currentUser?.name || 'User'}!</Text>
         <Text style={styles.subtitle}>Here's your daily overview</Text>
       </View>
 
@@ -170,7 +190,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.actionText}>Call Notes</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </WebScrollView>
   );
 }
 
@@ -264,5 +284,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
+    minHeight: '100vh',
   },
 });

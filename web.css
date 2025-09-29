@@ -1,0 +1,73 @@
+/* Web-specific CSS for Mawney Partners App */
+
+/* Reset body and html for proper scrolling */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto !important;
+}
+
+#root {
+  height: 100%;
+  overflow: auto !important;
+}
+
+/* Force all ScrollView components to be scrollable */
+[data-rn-scrollview] {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  height: 100% !important;
+  max-height: 100vh !important;
+}
+
+/* Force scrolling on all scrollable containers */
+div[data-rn-scrollview] {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  height: 100% !important;
+}
+
+/* Fix for React Native Web ScrollView */
+[data-rn-scrollview] > div {
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+/* Ensure all containers can scroll */
+div[style*="overflow"] {
+  overflow-y: auto !important;
+}
+
+/* Force scrolling on any element with scrollview class */
+.rn-scrollview {
+  overflow-y: auto !important;
+  height: 100% !important;
+}
+
+/* Override any height restrictions that prevent scrolling */
+[style*="height: 100%"] {
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+/* Force enable scrolling on all containers */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure proper touch scrolling on mobile web */
+@media (max-width: 768px) {
+  [data-rn-scrollview] {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* Additional web-specific fixes */
+div[data-rn-scrollview] {
+  position: relative !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}

@@ -726,6 +726,7 @@ Always use professional, confident language and demonstrate deep industry expert
                 {response.responseType === 'job_ad' && '📄 Job Advertisement'}
                 {response.responseType === 'cv_format' && '+ CV Format'}
                 {response.responseType === 'market_insight' && '📊 Market Insight'}
+                {response.responseType === 'definition' && '📚 Definition'}
                 {response.responseType === 'answer' && '💡 Answer'}
                 {response.responseType === 'error' && '❌ Error'}
               </Text>

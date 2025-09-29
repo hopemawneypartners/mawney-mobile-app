@@ -34,9 +34,9 @@ class AIService {
 
   async generateDailySummary(articles) {
     try {
-      console.log('🤖 Generating daily summary with custom AI...');
-      console.log('🤖 Total articles received:', articles?.length || 0);
-      console.log('🤖 Latest article titles:', articles?.slice(0, 3).map(a => a.title) || []);
+      console.log('🌐 Web AI Service generating daily summary...');
+      console.log('🌐 Web Total articles received:', articles?.length || 0);
+      console.log('🌐 Web Latest article titles:', articles?.slice(0, 3).map(a => a.title) || []);
       
       // Filter articles from past 24 hours
       const now = new Date();

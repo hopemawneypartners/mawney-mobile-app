@@ -4,9 +4,8 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🏢 Mawney Partners</Text>
-      <Text style={styles.subtitle}>Company App</Text>
-      <Text style={styles.message}>App is working! 🎉</Text>
+      <Text style={styles.title}>Mawney Partners</Text>
+      <Text style={styles.subtitle}>Web App is Working!</Text>
     </View>
   );
 }
@@ -22,16 +21,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#004b35',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#266b52',
-    marginBottom: 20,
-  },
-  message: {
     fontSize: 16,
-    color: '#2d2926',
+    color: '#4d4742',
   },
 });
-

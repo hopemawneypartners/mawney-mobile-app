@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import NotificationPollingService from '../services/notificationPollingService';
 import UserService from '../services/userService';
-import * as ImagePicker from 'expo-image-picker';
+import ChatService from '../services/chatService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const colors = {
@@ -55,13 +55,26 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
         console.log('👤 Loading user profile for:', currentUser.name);
         console.log('📸 Current avatar status:', currentUser.avatar ? 'Has avatar' : 'No avatar');
         
+        // Initialize ChatService first to ensure it's ready
+        await ChatService.initialize();
+        
+        // Get avatar using the same method as ChatService (which works)
+        const userInfo = await ChatService.getUserInfo(currentUser.id);
+        console.log('🔍 ChatService.getUserInfo result:', {
+          hasUserInfo: !!userInfo,
+          hasAvatar: !!userInfo?.avatar,
+          avatarType: userInfo?.avatar ? typeof userInfo.avatar : 'none',
+          avatarPreview: userInfo?.avatar ? (typeof userInfo.avatar === 'string' ? userInfo.avatar.substring(0, 50) + '...' : 'local asset') : 'none'
+        });
+        const userAvatar = userInfo?.avatar || currentUser.avatar;
+        
         setUser(prev => ({ 
           ...prev, 
           name: currentUser.name,
           email: currentUser.email,
           role: 'Credit Executive Search',
           department: 'Mawney Partners',
-          avatar: currentUser.avatar // Load avatar from server-synced user data
+          avatar: userAvatar // Use uploaded avatar, hardcoded avatar, or fallback
         }));
         
         // Also try to load fresh profile from server
@@ -72,9 +85,19 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
         const refreshedUser = UserService.getCurrentUser();
         if (refreshedUser && refreshedUser.avatar !== currentUser.avatar) {
           console.log('✅ Profile refreshed from server, updating avatar');
+          // Get fresh avatar using the same method as ChatService (which works)
+          await ChatService.initialize();
+          const freshUserInfo = await ChatService.getUserInfo(refreshedUser.id);
+          console.log('🔄 Refresh ChatService.getUserInfo result:', {
+            hasUserInfo: !!freshUserInfo,
+            hasAvatar: !!freshUserInfo?.avatar,
+            avatarType: freshUserInfo?.avatar ? typeof freshUserInfo.avatar : 'none'
+          });
+          const freshUserAvatar = freshUserInfo?.avatar || refreshedUser.avatar;
+          
           setUser(prev => ({ 
             ...prev, 
-            avatar: refreshedUser.avatar
+            avatar: freshUserAvatar
           }));
         }
       }
@@ -83,45 +106,6 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
     }
   };
 
-  const selectProfilePicture = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (status !== 'granted') {
-        Alert.alert('Permission Required', 'Please grant camera roll permissions to select a profile picture.');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-        base64: true,
-      });
-
-      if (!result.canceled && result.assets[0]) {
-        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
-        console.log('📸 Profile picture selected, base64 length:', base64Image.length);
-        setUser(prev => ({ ...prev, avatar: base64Image }));
-        
-        // Update user service with new avatar
-        const currentUser = UserService.getCurrentUser();
-        if (currentUser) {
-          console.log('👤 Updating current user avatar...');
-          currentUser.avatar = base64Image;
-          await UserService.saveCurrentUser();
-          console.log('💾 Saved to local storage, now saving to server...');
-          await UserService.saveUserProfileToServer();
-          console.log('✅ Profile picture saved to server');
-        } else {
-          console.error('❌ No current user found');
-        }
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to select profile picture. Please try again.');
-    }
-  };
 
 
   const handleQuickAction = (action) => {
@@ -157,7 +141,7 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
-        <TouchableOpacity style={styles.avatarContainer} onPress={selectProfilePicture}>
+        <View style={styles.avatarContainer}>
           {user.avatar ? (
             <Image source={typeof user.avatar === 'string' ? { uri: user.avatar } : user.avatar} style={styles.avatarImage} />
           ) : (
@@ -165,22 +149,12 @@ export default function ProfileScreen({ onLogout, navigation, parentNavigation }
               <Text style={styles.avatarText}>◆</Text>
             </View>
           )}
-          <View style={styles.avatarOverlay}>
-            <Text style={styles.avatarOverlayText}>+</Text>
-          </View>
-        </TouchableOpacity>
+        </View>
         
         <Text style={styles.userName}>{user.name}</Text>
         <Text style={styles.userRole}>{user.role}</Text>
         <Text style={styles.userEmail}>{user.email}</Text>
         
-        {/* Refresh Profile Button */}
-        <TouchableOpacity 
-          style={styles.refreshButton} 
-          onPress={loadUserProfile}
-        >
-          <Text style={styles.refreshButtonText}>🔄 Refresh Profile</Text>
-        </TouchableOpacity>
       </View>
 
 
@@ -271,23 +245,6 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: colors.surface,
   },
-  avatarOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: colors.primary,
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.surface,
-  },
-  avatarOverlayText: {
-    fontSize: 14,
-    color: colors.surface,
-  },
   userName: {
     fontSize: 26,
     fontWeight: '700',
@@ -304,18 +261,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary,
     fontWeight: '500',
-  },
-  refreshButton: {
-    backgroundColor: colors.accent,
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  refreshButtonText: {
-    color: colors.surface,
-    fontSize: 14,
-    fontWeight: '600',
   },
   quickActions: {
     padding: 20,

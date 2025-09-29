@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DailySummary from '../components/DailySummary';
-import WebScrollView from '../components/WebScrollView';
 import NotificationService from '../services/notificationService';
 
 const colors = {
@@ -448,21 +447,12 @@ export default function ArticlesScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <WebScrollView 
+      <ScrollView 
         style={styles.container}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        contentContainerStyle={styles.scrollContent}
-        bounces={true}
-        scrollEnabled={true}
-        nestedScrollEnabled={true}
-        keyboardShouldPersistTaps="handled"
-        alwaysBounceVertical={false}
-        overScrollMode="auto"
-        removeClippedSubviews={false}
-        scrollEventThrottle={16}
       >
       <DailySummary articles={articles} />
       
@@ -603,7 +593,7 @@ export default function ArticlesScreen() {
           ))
         )}
       </View>
-      </WebScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -826,10 +816,5 @@ const styles = StyleSheet.create({
     color: colors.surface,
     fontSize: 12,
     fontWeight: '500',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 20,
-    minHeight: '100vh',
   },
 });
