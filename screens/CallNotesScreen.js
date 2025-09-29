@@ -328,7 +328,12 @@ export default function CallNotesScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView 
+        style={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.header}>
           <Text style={styles.title}>Call Notes</Text>
           <Text style={styles.subtitle}>Record and transcribe calls</Text>
@@ -420,12 +425,7 @@ export default function CallNotesScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        style={styles.notesContainer}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+      <View style={styles.notesSection}>
         <Text style={styles.sectionTitle}>Recent Notes</Text>
         {callNotes.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -460,8 +460,8 @@ export default function CallNotesScreen() {
             </TouchableOpacity>
           ))
         )}
-      </ScrollView>
       </View>
+      </ScrollView>
 
       {/* Note Details Popup */}
       {selectedNote && (
@@ -842,9 +842,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  notesContainer: {
-    flex: 1,
+  notesSection: {
     paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   emptyContainer: {
     alignItems: 'center',
