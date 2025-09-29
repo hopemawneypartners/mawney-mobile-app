@@ -158,8 +158,14 @@ class ChatService {
   // Load user-to-user chats from server
   async loadUserChatsFromServer() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/api/user-chats?email=${encodeURIComponent(this.currentUser.email)}`);
+      console.log('🔄 Loading user chats from server for:', this.currentUser.id);
+      console.log('🌐 API URL:', `${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
+      
+      const response = await fetch(`${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
+      console.log('📡 Server response status:', response.status);
+      
       const data = await response.json();
+      console.log('📡 Server response data:', data);
       
       if (data.success && data.chats) {
         // Filter out AI chats and group chats, only get user-to-user chats
