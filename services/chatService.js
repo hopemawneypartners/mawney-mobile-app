@@ -31,7 +31,26 @@ class ChatService {
       
       console.log('🔍 ChatService initialize - User ID:', this.currentUser.id);
       
-      await this.loadChats();
+      // Show alert before calling loadChats
+      if (typeof alert !== 'undefined') {
+        alert('🔄 About to call loadChats...');
+      }
+      
+      try {
+        await this.loadChats();
+        
+        // Show alert after loadChats completes
+        if (typeof alert !== 'undefined') {
+          alert('✅ loadChats completed!');
+        }
+      } catch (error) {
+        // Show alert if loadChats fails
+        if (typeof alert !== 'undefined') {
+          alert(`❌ loadChats failed: ${error.message}`);
+        }
+        console.error('❌ loadChats error:', error);
+      }
+      
       await this.loadMessages();
       
       // Initialize chat notifications
