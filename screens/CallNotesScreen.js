@@ -10,8 +10,11 @@ import {
   ActivityIndicator,
   SafeAreaView,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
 import UserService from '../services/userService';
 import TeamsService from '../services/teamsService';
 
@@ -42,11 +45,29 @@ export default function CallNotesScreen() {
   const [editTitle, setEditTitle] = useState('');
   const [editDate, setEditDate] = useState('');
   const [editTime, setEditTime] = useState('');
+  const [recording, setRecording] = useState(null);
+  const [recordingStatus, setRecordingStatus] = useState('Ready to record');
 
   useEffect(() => {
     loadCallNotes();
     initializeTeams();
+    requestAudioPermissions();
   }, []);
+
+  const requestAudioPermissions = async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setRecordingStatus('Microphone permission denied');
+        Alert.alert('Permission Required', 'Microphone access is required for call recording.');
+      } else {
+        setRecordingStatus('Ready to record');
+      }
+    } catch (error) {
+      console.error('Error requesting audio permissions:', error);
+      setRecordingStatus('Permission error');
+    }
+  };
 
   const initializeTeams = async () => {
     const authenticated = await TeamsService.initialize();
@@ -130,31 +151,68 @@ export default function CallNotesScreen() {
     setRefreshing(false);
   };
 
-  const startCallRecording = () => {
-    Alert.alert(
-      'Start Call Recording',
-      'This will begin recording and transcribing your phone call. Make sure you have permission to record.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Start Recording', 
-          onPress: () => {
-            setIsRecording(true);
-            setCurrentCall({
-              id: Date.now(),
-              startTime: new Date().toISOString(),
-              title: 'Call Recording',
-              transcription: '',
-              notes: '',
-              participants: '',
-              status: 'recording'
-            });
-            // Simulate transcription process
-            simulateTranscription();
+  const startCallRecording = async () => {
+    try {
+      // Check permissions first
+      const { status } = await Audio.getPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Microphone access is required for call recording.');
+        return;
+      }
+
+      Alert.alert(
+        'Start Call Recording',
+        'This will begin recording and transcribing your phone call. Make sure you have permission to record.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Start Recording', 
+            onPress: async () => {
+              try {
+                // Configure audio mode for recording
+                await Audio.setAudioModeAsync({
+                  allowsRecordingIOS: true,
+                  playsInSilentModeIOS: true,
+                  shouldDuckAndroid: true,
+                  playThroughEarpieceAndroid: false,
+                });
+
+                // Start recording
+                const { recording } = await Audio.Recording.createAsync(
+                  Audio.RecordingOptionsPresets.HIGH_QUALITY
+                );
+                
+                setRecording(recording);
+                setIsRecording(true);
+                setRecordingStatus('Recording... Speak clearly');
+                
+                setCurrentCall({
+                  id: Date.now(),
+                  startTime: new Date().toISOString(),
+                  title: 'Call Recording',
+                  transcription: '',
+                  notes: '',
+                  participants: '',
+                  status: 'recording'
+                });
+
+                // Start speech recognition simulation
+                // Note: Real speech recognition would require additional setup
+                simulateTranscription();
+                
+              } catch (error) {
+                console.error('Error starting recording:', error);
+                Alert.alert('Recording Error', 'Failed to start recording. Please try again.');
+                setRecordingStatus('Recording failed');
+              }
+            }
           }
-        }
-      ]
-    );
+        ]
+      );
+    } catch (error) {
+      console.error('Error in startCallRecording:', error);
+      Alert.alert('Error', 'Failed to initialize recording.');
+    }
   };
 
   const simulateTranscription = () => {
@@ -197,7 +255,7 @@ export default function CallNotesScreen() {
     }));
   };
 
-  const stopCallRecording = () => {
+  const stopCallRecording = async () => {
     Alert.alert(
       'Stop Recording',
       'Are you sure you want to stop recording this call?',
@@ -205,23 +263,47 @@ export default function CallNotesScreen() {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Stop Recording', 
-          onPress: () => {
-            setIsRecording(false);
-            if (currentCall) {
-              // Clear transcription interval
-              if (currentCall.transcriptionInterval) {
-                clearInterval(currentCall.transcriptionInterval);
+          onPress: async () => {
+            try {
+              setIsRecording(false);
+              setRecordingStatus('Processing recording...');
+              
+              if (recording) {
+                // Stop the recording
+                await recording.stopAndUnloadAsync();
+                
+                // Get the URI of the recorded audio
+                const uri = recording.getURI();
+                console.log('Recording saved to:', uri);
+                
+                // Reset recording state
+                setRecording(null);
               }
               
-              const updatedCall = {
-                ...currentCall,
-                endTime: new Date().toISOString(),
-                status: 'completed'
-              };
-              const updatedNotes = [updatedCall, ...callNotes];
-              setCallNotes(updatedNotes);
-              saveCallNotes(updatedNotes);
-              setCurrentCall(null);
+              if (currentCall) {
+                // Clear transcription interval
+                if (currentCall.transcriptionInterval) {
+                  clearInterval(currentCall.transcriptionInterval);
+                }
+                
+                const updatedCall = {
+                  ...currentCall,
+                  endTime: new Date().toISOString(),
+                  status: 'completed',
+                  audioUri: recording ? recording.getURI() : null
+                };
+                const updatedNotes = [updatedCall, ...callNotes];
+                setCallNotes(updatedNotes);
+                saveCallNotes(updatedNotes);
+                setCurrentCall(null);
+              }
+              
+              setRecordingStatus('Recording saved successfully');
+              
+            } catch (error) {
+              console.error('Error stopping recording:', error);
+              Alert.alert('Recording Error', 'Failed to stop recording properly.');
+              setRecordingStatus('Recording error');
             }
           }
         }
@@ -362,6 +444,9 @@ export default function CallNotesScreen() {
                 <Text style={styles.transcribingText}>Transcribing...</Text>
               </View>
             )}
+            <View style={styles.recordingStatusContainer}>
+              <Text style={styles.recordingStatusText}>{recordingStatus}</Text>
+            </View>
           </View>
         )}
 
@@ -646,6 +731,16 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     color: colors.textSecondary,
+  },
+  recordingStatusContainer: {
+    marginTop: 8,
+    paddingHorizontal: 12,
+  },
+  recordingStatusText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   actionsContainer: {
     paddingHorizontal: 20,
