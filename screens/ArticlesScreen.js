@@ -179,6 +179,7 @@ export default function ArticlesScreen() {
       setLoading(true);
       console.log('🔍 Fetching articles from:', `${API_BASE_URL}/api/articles`);
       console.log('🔍 FORCE REFRESH - API should be working now!');
+      console.log('🔍 Timeout set to 90 seconds');
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
