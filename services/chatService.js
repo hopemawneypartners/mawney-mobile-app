@@ -161,11 +161,21 @@ class ChatService {
       console.log('🚀 STARTING loadUserChatsFromServer for user:', this.currentUser.id);
       console.log('🌐 API URL:', `${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
       
+      // Show alert for debugging
+      if (typeof alert !== 'undefined') {
+        alert(`🔄 Loading chats from server for: ${this.currentUser.id}`);
+      }
+      
       const response = await fetch(`${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
       console.log('📡 Server response status:', response.status);
       
       const data = await response.json();
       console.log('📡 Server response data:', data);
+      
+      // Show alert with server response
+      if (typeof alert !== 'undefined') {
+        alert(`📡 Server response: ${response.status}\nChats: ${data.chats ? data.chats.length : 0}`);
+      }
       
       if (data.success && data.chats) {
         console.log('📡 Raw server chats:', data.chats);
@@ -191,6 +201,11 @@ class ChatService {
             // Update the current chats array and reload
             this.chats = updatedChats;
             console.log('📱 Updated chats array with server data:', this.chats.length);
+            
+            // Show alert for debugging
+            if (typeof alert !== 'undefined') {
+              alert(`✅ Server sync complete!\nUpdated chats: ${this.chats.length}\nNew chats: ${userToUserChats.length}`);
+            }
             
             // Emit event to notify UI that chats have been updated
             if (typeof window !== 'undefined' && window.dispatchEvent) {
