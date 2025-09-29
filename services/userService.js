@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CrossPlatformAuth from './crossPlatformAuth';
 
 // Import profile pictures at the top level
 const profilePictures = {
@@ -156,16 +157,28 @@ class UserService {
   // Save current user to storage
   async saveCurrentUser() {
     if (this.currentUser) {
-      await AsyncStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+      console.log('💾 Saving current user:', this.currentUser.id, this.currentUser.name);
+      
+      // Use cross-platform auth for storage
+      const crossPlatformAuth = new CrossPlatformAuth();
+      await crossPlatformAuth.setUser(this.currentUser);
+      
+      // Also sync with server
+      await crossPlatformAuth.syncUserData(this.currentUser);
+      
+      console.log('✅ User saved and synced across platforms');
     }
   }
 
   // Load current user from storage
   async loadCurrentUser() {
     try {
-      const userData = await AsyncStorage.getItem('currentUser');
-      if (userData) {
-        this.currentUser = JSON.parse(userData);
+      // Use cross-platform auth for loading
+      const crossPlatformAuth = new CrossPlatformAuth();
+      const user = await crossPlatformAuth.getUser();
+      
+      if (user) {
+        this.currentUser = user;
         
         // Load latest profile from server in background (non-blocking)
         this.loadUserProfileFromServer().catch(error => {
@@ -183,7 +196,10 @@ class UserService {
   // Logout
   async logout() {
     this.currentUser = null;
-    await AsyncStorage.removeItem('currentUser');
+    
+    // Use cross-platform auth for logout
+    const crossPlatformAuth = new CrossPlatformAuth();
+    await crossPlatformAuth.clearUser();
   }
 
   // Update user preferences

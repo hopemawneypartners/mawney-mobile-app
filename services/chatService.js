@@ -106,6 +106,7 @@ class ChatService {
       console.log(`✅ Loaded ${userChats.length} user chats and ${sharedGroupChats.length} shared group chats`);
       
       // Load chats from server in background (non-blocking)
+      console.log('🔄 Starting server sync for user:', this.currentUser.id);
       this.loadAIChatsFromServer().catch(error => {
         console.log('Background AI chat sync failed:', error.message);
       });
