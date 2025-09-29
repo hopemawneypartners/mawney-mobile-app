@@ -43,6 +43,10 @@ export default function ChatListScreen({ navigation }) {
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
 
   useEffect(() => {
+    // Show alert to confirm ChatListScreen is loading
+    if (typeof alert !== 'undefined') {
+      alert('📱 ChatListScreen loading...');
+    }
     initializeChats();
     
     // Listen for polling updates to refresh chat list
@@ -105,6 +109,10 @@ export default function ChatListScreen({ navigation }) {
 
   const initializeChats = async () => {
     try {
+      // Show alert to confirm initializeChats is being called
+      if (typeof alert !== 'undefined') {
+        alert('🔄 initializeChats called...');
+      }
       setLoading(true);
       await ChatService.initialize();
       

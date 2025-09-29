@@ -17,6 +17,10 @@ class ChatService {
   // Initialize chat service
   async initialize() {
     try {
+      // Show alert to confirm ChatService.initialize is being called
+      if (typeof alert !== 'undefined') {
+        alert('🚀 ChatService.initialize called...');
+      }
       this.currentUser = await UserService.loadCurrentUser();
       console.log('🔍 ChatService initialize - Current user:', this.currentUser);
       
