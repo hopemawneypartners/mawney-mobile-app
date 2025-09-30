@@ -17,10 +17,6 @@ class ChatService {
   // Initialize chat service
   async initialize() {
     try {
-      // Show alert to confirm ChatService.initialize is being called
-      if (typeof alert !== 'undefined') {
-        alert('🚀 ChatService.initialize called...');
-      }
       this.currentUser = await UserService.loadCurrentUser();
       console.log('🔍 ChatService initialize - Current user:', this.currentUser);
       
@@ -31,27 +27,12 @@ class ChatService {
       
       console.log('🔍 ChatService initialize - User ID:', this.currentUser.id);
       
-      // Show alert before calling loadChats
-      if (typeof alert !== 'undefined') {
-        alert('🔄 About to call loadChats...');
-      }
-      
-      try {
-        await this.loadChats();
-        
-        // Show alert after loadChats completes
-        if (typeof alert !== 'undefined') {
-          alert('✅ loadChats completed!');
-        }
-      } catch (error) {
-        // Show alert if loadChats fails
-        if (typeof alert !== 'undefined') {
-          alert(`❌ loadChats failed: ${error.message}`);
-        }
-        console.error('❌ loadChats error:', error);
-      }
-      
+      await this.loadChats();
       await this.loadMessages();
+      
+      // Force server sync immediately after loading
+      console.log('🔄 Force syncing chats from server...');
+      await this.loadUserChatsFromServer();
       
       // Initialize chat notifications
       await ChatNotificationService.initialize(this.currentUser);
@@ -81,11 +62,6 @@ class ChatService {
   // Load all chats for current user
   async loadChats() {
     try {
-      // Show alert to confirm loadChats is being called
-      if (typeof alert !== 'undefined') {
-        alert('📥 loadChats called...');
-      }
-      
       if (!this.currentUser || !this.currentUser.id) {
         console.error('❌ Cannot load chats: currentUser is null or has no ID');
         console.error('❌ Current user:', this.currentUser);
@@ -133,20 +109,8 @@ class ChatService {
       
       console.log(`✅ Loaded ${userChats.length} user chats and ${sharedGroupChats.length} shared group chats`);
       
-      // Load chats from server in background (non-blocking)
-      console.log('🔄 Starting server sync for user:', this.currentUser.id);
-      
-      // Show alert to confirm server sync is being triggered
-      if (typeof alert !== 'undefined') {
-        alert('🔄 Starting server sync...');
-      }
-      
-      this.loadAIChatsFromServer().catch(error => {
-        console.log('Background AI chat sync failed:', error.message);
-      });
-      this.loadUserChatsFromServer().catch(error => {
-        console.log('Background user chat sync failed:', error.message);
-      });
+      // Server sync is now handled in initialize() to ensure it completes before UI loads
+      console.log('✅ Local chats loaded, server sync will happen next');
       
     } catch (error) {
       console.error('Error loading chats:', error);
@@ -192,24 +156,14 @@ class ChatService {
   // Load user-to-user chats from server
   async loadUserChatsFromServer() {
     try {
-      console.log('🚀 STARTING loadUserChatsFromServer for user:', this.currentUser.id);
+      console.log('🔄 Loading user chats from server for:', this.currentUser.id);
       console.log('🌐 API URL:', `${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
-      
-      // Show alert for debugging
-      if (typeof alert !== 'undefined') {
-        alert(`🔄 Loading chats from server for: ${this.currentUser.id}`);
-      }
       
       const response = await fetch(`${this.apiBaseUrl}/api/chats?user_id=${this.currentUser.id}`);
       console.log('📡 Server response status:', response.status);
       
       const data = await response.json();
       console.log('📡 Server response data:', data);
-      
-      // Show alert with server response
-      if (typeof alert !== 'undefined') {
-        alert(`📡 Server response: ${response.status}\nChats: ${data.chats ? data.chats.length : 0}`);
-      }
       
       if (data.success && data.chats) {
         console.log('📡 Raw server chats:', data.chats);
@@ -232,21 +186,9 @@ class ChatService {
             const updatedChats = [...nonUserChats, ...userToUserChats];
             await AsyncStorage.setItem(`${CHAT_STORAGE_KEY}_${this.currentUser.id}`, JSON.stringify(updatedChats));
             
-            // Update the current chats array and reload
+            // Update the current chats array
             this.chats = updatedChats;
-            console.log('📱 Updated chats array with server data:', this.chats.length);
-            
-            // Show alert for debugging
-            if (typeof alert !== 'undefined') {
-              alert(`✅ Server sync complete!\nUpdated chats: ${this.chats.length}\nNew chats: ${userToUserChats.length}`);
-            }
-            
-            // Emit event to notify UI that chats have been updated
-            if (typeof window !== 'undefined' && window.dispatchEvent) {
-              window.dispatchEvent(new CustomEvent('chatsUpdated', { 
-                detail: { source: 'server_sync', chatCount: this.chats.length } 
-              }));
-            }
+            console.log('✅ Updated chats array with server data:', this.chats.length, 'chats');
           }
           
           console.log('📱 Loaded user-to-user chats from server:', userToUserChats.length);

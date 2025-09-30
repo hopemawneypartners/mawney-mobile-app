@@ -43,10 +43,6 @@ export default function ChatListScreen({ navigation }) {
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
 
   useEffect(() => {
-    // Show alert to confirm ChatListScreen is loading
-    if (typeof alert !== 'undefined') {
-      alert('📱 ChatListScreen loading...');
-    }
     initializeChats();
     
     // Listen for polling updates to refresh chat list
@@ -68,24 +64,10 @@ export default function ChatListScreen({ navigation }) {
       }
     };
     
-    // Listen for server sync updates
-    const handleChatsUpdated = (event) => {
-      console.log('📱 ChatListScreen - Chats updated from server sync:', event.detail);
-      loadChats();
-    };
-    
     ChatPollingService.addListener(handlePollingUpdate);
-    
-    // Add event listener for server sync updates
-    if (typeof window !== 'undefined' && window.addEventListener) {
-      window.addEventListener('chatsUpdated', handleChatsUpdated);
-    }
     
     return () => {
       ChatPollingService.removeListener(handlePollingUpdate);
-      if (typeof window !== 'undefined' && window.removeEventListener) {
-        window.removeEventListener('chatsUpdated', handleChatsUpdated);
-      }
     };
   }, []);
 
@@ -109,10 +91,6 @@ export default function ChatListScreen({ navigation }) {
 
   const initializeChats = async () => {
     try {
-      // Show alert to confirm initializeChats is being called
-      if (typeof alert !== 'undefined') {
-        alert('🔄 initializeChats called...');
-      }
       setLoading(true);
       await ChatService.initialize();
       
