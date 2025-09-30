@@ -139,6 +139,12 @@ export default function App() {
   useEffect(() => {
     try {
       console.log('🚀 App starting...');
+      
+      // Force clear any cached user data with old avatars
+      AsyncStorage.removeItem('mawney_user').catch(err => {
+        console.log('⚠️ Could not clear user cache:', err.message);
+      });
+      
       initializeCrossPlatformAuth();
       initializeWebService();
       initializeNotifications();
