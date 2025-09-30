@@ -835,6 +835,16 @@ class ChatService {
   // Create a new group chat
   async createGroupChat(name, participantIds) {
     try {
+      // Ensure we have a current user
+      if (!this.currentUser || !this.currentUser.id) {
+        console.error('❌ No current user in ChatService');
+        // Try to reload current user
+        this.currentUser = await UserService.loadCurrentUser();
+        if (!this.currentUser || !this.currentUser.id) {
+          throw new Error('No current user found. Please log in again.');
+        }
+      }
+      
       const chatId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const participants = [this.currentUser.id, ...participantIds];
 
@@ -874,6 +884,18 @@ class ChatService {
   async createDirectChat(userId) {
     try {
       console.log('🔄 Creating direct chat with user:', userId);
+      
+      // Ensure we have a current user
+      if (!this.currentUser || !this.currentUser.id) {
+        console.error('❌ No current user in ChatService');
+        // Try to reload current user
+        this.currentUser = await UserService.loadCurrentUser();
+        if (!this.currentUser || !this.currentUser.id) {
+          throw new Error('No current user found. Please log in again.');
+        }
+      }
+      
+      console.log('✅ Current user:', this.currentUser.id, this.currentUser.name);
       
       const otherUser = UserService.getUsers().find(u => u.id === userId);
       if (!otherUser) {
