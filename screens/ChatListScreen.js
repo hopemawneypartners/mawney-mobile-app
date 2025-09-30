@@ -324,10 +324,10 @@ export default function ChatListScreen({ navigation }) {
             <Text style={styles.chatAvatarText}>👥</Text>
           ) : otherParticipant?.avatar && !imageError ? (
             <Image 
-              source={typeof otherParticipant.avatar === 'string' ? { uri: otherParticipant.avatar } : otherParticipant.avatar} 
+              source={otherParticipant.avatar}
               style={styles.chatAvatarImage}
               onError={(error) => {
-                console.log('❌ Image load error for', otherParticipant.name, ':', error);
+                console.log('❌ Image load error for', otherParticipant.name, ':', error.nativeEvent);
                 setImageErrors(prev => ({ ...prev, [chat.id]: true }));
               }}
               onLoad={() => {
