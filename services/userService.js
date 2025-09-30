@@ -100,24 +100,29 @@ class UserService {
 
   // Authenticate user
   async authenticate(email, password) {
-    try {
-      const user = USERS.find(u => u.email === email && u.password === password);
-      if (user) {
-        this.currentUser = user;
-        await this.saveCurrentUser();
-        
-        // Load user profile from server in background (non-blocking)
-        this.loadUserProfileFromServer().catch(error => {
-          console.log('⚠️ Server profile load failed (non-critical):', error.message);
-        });
-        
-        return { success: true, user: this.currentUser };
-      }
-      return { success: false, error: 'Invalid credentials' };
-    } catch (error) {
-      console.error('❌ Authentication error:', error);
-      return { success: false, error: error.message };
+    console.log('🔐 Authenticating user:', email);
+    
+    const user = USERS.find(u => u.email === email && u.password === password);
+    
+    if (user) {
+      console.log('✅ User found:', user.name);
+      this.currentUser = user;
+      
+      // Save to storage in background (non-blocking)
+      this.saveCurrentUser().catch(error => {
+        console.log('⚠️ Save user failed (non-critical):', error.message);
+      });
+      
+      // Load user profile from server in background (non-blocking)
+      this.loadUserProfileFromServer().catch(error => {
+        console.log('⚠️ Server profile load failed (non-critical):', error.message);
+      });
+      
+      return { success: true, user: this.currentUser };
     }
+    
+    console.log('❌ User not found or invalid password');
+    return { success: false, error: 'Invalid credentials' };
   }
 
   // Load user profile from server
