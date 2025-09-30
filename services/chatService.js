@@ -873,18 +873,26 @@ class ChatService {
   // Create a direct chat with another user
   async createDirectChat(userId) {
     try {
+      console.log('🔄 Creating direct chat with user:', userId);
+      
       const otherUser = UserService.getUsers().find(u => u.id === userId);
       if (!otherUser) {
+        console.error('❌ User not found:', userId);
         throw new Error('User not found');
       }
+      
+      console.log('✅ Found user:', otherUser.name);
 
       // Create a consistent ID by sorting the user IDs alphabetically
       const sortedIds = [this.currentUser.id, userId].sort();
       const chatId = `direct_${sortedIds[0]}_${sortedIds[1]}`;
       
+      console.log('🔑 Chat ID:', chatId);
+      
       // Check if chat already exists
       const existingChat = this.chats.find(c => c.id === chatId);
       if (existingChat) {
+        console.log('ℹ️ Chat already exists, returning existing chat');
         return existingChat;
       }
 
@@ -898,16 +906,23 @@ class ChatService {
         lastMessage: null,
         unreadCount: 0
       };
-
+      
+      console.log('💾 Saving chat to local storage...');
       this.chats.push(newChat);
       await this.saveChats();
+      console.log('✅ Chat saved to local storage');
       
-      // Sync to server
-      await this.saveUserChatsToServer();
+      // Sync to server (non-blocking to prevent errors from blocking chat creation)
+      console.log('🌐 Syncing chat to server...');
+      this.saveUserChatsToServer().catch(error => {
+        console.log('⚠️ Server sync failed (non-critical):', error.message);
+      });
 
+      console.log('✅ Direct chat created successfully');
       return newChat;
     } catch (error) {
-      console.error('Error creating direct chat:', error);
+      console.error('❌ Error creating direct chat:', error);
+      console.error('❌ Error details:', error.message, error.stack);
       throw error;
     }
   }
