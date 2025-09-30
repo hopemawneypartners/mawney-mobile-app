@@ -27,19 +27,31 @@ class ChatService {
       
       console.log('🔍 ChatService initialize - User ID:', this.currentUser.id);
       
-      await this.loadChats();
-      await this.loadMessages();
+      try {
+        await this.loadChats();
+      } catch (error) {
+        console.error('Error loading chats:', error);
+        this.chats = [];
+      }
+      
+      try {
+        await this.loadMessages();
+      } catch (error) {
+        console.error('Error loading messages:', error);
+        this.messages = [];
+      }
       
       // Initialize chat notifications
-      await ChatNotificationService.initialize(this.currentUser);
+      try {
+        await ChatNotificationService.initialize(this.currentUser);
+      } catch (error) {
+        console.error('Error initializing notifications:', error);
+      }
       
-      // Load chats from server in background (non-blocking) with timeout
+      // Load chats from server in background (non-blocking, no await)
       console.log('🔄 Starting background server sync...');
-      Promise.race([
-        this.loadUserChatsFromServer(),
-        new Promise((resolve) => setTimeout(resolve, 5000)) // 5 second timeout
-      ]).catch(error => {
-        console.log('Background server sync failed or timed out:', error.message);
+      this.loadUserChatsFromServer().catch(error => {
+        console.log('Background server sync failed:', error.message);
       });
       
       console.log('✅ ChatService initialized successfully for user:', this.currentUser.id);
