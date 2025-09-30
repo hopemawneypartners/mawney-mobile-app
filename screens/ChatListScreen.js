@@ -320,27 +320,43 @@ export default function ChatListScreen({ navigation }) {
         activeOpacity={0.7}
       >
         <View style={styles.chatAvatar}>
-          {chat.type === 'group' ? (
-            <Text style={styles.chatAvatarText}>👥</Text>
-          ) : otherParticipant?.avatar && !imageError ? (
-            <Image 
-              source={otherParticipant.avatar}
-              style={styles.chatAvatarImage}
-              onError={(error) => {
-                console.log('❌ Image load error for', otherParticipant.name, ':', error.nativeEvent);
-                setImageErrors(prev => ({ ...prev, [chat.id]: true }));
-              }}
-              onLoad={() => {
-                console.log('✅ Image loaded for', otherParticipant.name);
-              }}
-              resizeMode="cover"
-              accessibilityLabel={`Profile picture of ${otherParticipant.name}`}
-            />
-          ) : (
-            <Text style={styles.chatAvatarText}>
-              {otherParticipant?.name?.charAt(0) || '?'}
-            </Text>
-          )}
+          {(() => {
+            // Debug logging
+            console.log('🖼️ Rendering avatar for chat:', chat.name, {
+              hasOtherParticipant: !!otherParticipant,
+              participantName: otherParticipant?.name,
+              hasAvatar: !!otherParticipant?.avatar,
+              avatarType: typeof otherParticipant?.avatar,
+              avatar: otherParticipant?.avatar,
+              imageError: imageError
+            });
+            
+            if (chat.type === 'group') {
+              return <Text style={styles.chatAvatarText}>👥</Text>;
+            } else if (otherParticipant?.avatar && !imageError) {
+              return (
+                <Image 
+                  source={otherParticipant.avatar}
+                  style={styles.chatAvatarImage}
+                  onError={(error) => {
+                    console.log('❌ Image load error for', otherParticipant.name, ':', error.nativeEvent);
+                    setImageErrors(prev => ({ ...prev, [chat.id]: true }));
+                  }}
+                  onLoad={() => {
+                    console.log('✅ Image loaded for', otherParticipant.name);
+                  }}
+                  resizeMode="cover"
+                  accessibilityLabel={`Profile picture of ${otherParticipant.name}`}
+                />
+              );
+            } else {
+              return (
+                <Text style={styles.chatAvatarText}>
+                  {otherParticipant?.name?.charAt(0) || '?'}
+                </Text>
+              );
+            }
+          })()}
         </View>
         
         <View style={styles.chatContent}>
