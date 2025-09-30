@@ -351,8 +351,11 @@ export default function ChatListScreen({ navigation }) {
         
         <View style={styles.chatContent}>
           {/* DEBUG: Show avatar info on screen */}
-          <Text style={{ fontSize: 10, color: 'red', marginBottom: 4 }}>
-            DEBUG: Avatar={otherParticipant?.avatar ? 'YES' : 'NO'} | Type={typeof otherParticipant?.avatar} | Error={imageError ? 'YES' : 'NO'}
+          <Text style={{ fontSize: 9, color: 'red', marginBottom: 2 }}>
+            Avatar={otherParticipant?.avatar ? 'YES' : 'NO'} | Type={typeof otherParticipant?.avatar} | Err={imageError ? 'Y' : 'N'}
+          </Text>
+          <Text style={{ fontSize: 9, color: 'blue', marginBottom: 4 }}>
+            Participant={otherParticipant ? 'YES' : 'NO'} | Name={otherParticipant?.name || 'NONE'}
           </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>

@@ -1076,16 +1076,28 @@ class ChatService {
   // Get user info by ID
   async getUserInfo(userId) {
     const user = UserService.getUsers().find(u => u.id === userId);
-    if (!user) return null;
+    if (!user) {
+      console.log('❌ User not found:', userId);
+      return null;
+    }
     
     // Use the avatar directly from USERS array (local JPG images)
-    // Don't try to get "actual" or "hardcoded" avatars - they override the local JPG
-    console.log('👤 getUserInfo for', user.name, '- Avatar type:', typeof user.avatar);
+    console.log('👤 getUserInfo for', user.name, ':', {
+      hasAvatar: !!user.avatar,
+      avatarType: typeof user.avatar,
+      avatarValue: user.avatar
+    });
     
-    return {
-      ...user,
-      avatar: user.avatar // Use avatar from USERS array
+    const userInfo = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar
     };
+    
+    console.log('👤 Returning user info:', userInfo.name, 'Avatar type:', typeof userInfo.avatar);
+    
+    return userInfo;
   }
 
   // Get chat participants info
