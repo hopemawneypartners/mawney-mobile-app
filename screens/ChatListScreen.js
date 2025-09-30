@@ -297,6 +297,14 @@ export default function ChatListScreen({ navigation }) {
     const unreadCount = ChatService.getUnreadCount(chat.id);
     const lastMessage = chat.lastMessage;
     const participants = participantsData[chat.id] || [];
+    
+    console.log('🔍 renderChatItem:', chat.name, {
+      chatId: chat.id,
+      hasParticipantsData: !!participantsData[chat.id],
+      participantsCount: participants.length,
+      participantsDataKeys: Object.keys(participantsData)
+    });
+    
     const otherParticipant = Array.isArray(participants) ? participants.find(p => p.id !== ChatService.currentUser?.id) : null;
     
     // Debug logging
@@ -354,8 +362,11 @@ export default function ChatListScreen({ navigation }) {
           <Text style={{ fontSize: 9, color: 'red', marginBottom: 2 }}>
             Avatar={otherParticipant?.avatar ? 'YES' : 'NO'} | Type={typeof otherParticipant?.avatar} | Err={imageError ? 'Y' : 'N'}
           </Text>
-          <Text style={{ fontSize: 9, color: 'blue', marginBottom: 4 }}>
+          <Text style={{ fontSize: 9, color: 'blue', marginBottom: 2 }}>
             Participant={otherParticipant ? 'YES' : 'NO'} | Name={otherParticipant?.name || 'NONE'}
+          </Text>
+          <Text style={{ fontSize: 9, color: 'green', marginBottom: 4 }}>
+            ParticipantsData={participants.length} | ChatID={chat.id.substring(0, 20)}
           </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>
