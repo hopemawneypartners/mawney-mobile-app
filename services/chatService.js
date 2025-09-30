@@ -30,12 +30,17 @@ class ChatService {
       await this.loadChats();
       await this.loadMessages();
       
-      // Force server sync immediately after loading
-      console.log('🔄 Force syncing chats from server...');
-      await this.loadUserChatsFromServer();
-      
       // Initialize chat notifications
       await ChatNotificationService.initialize(this.currentUser);
+      
+      // Load chats from server in background (non-blocking) with timeout
+      console.log('🔄 Starting background server sync...');
+      Promise.race([
+        this.loadUserChatsFromServer(),
+        new Promise((resolve) => setTimeout(resolve, 5000)) // 5 second timeout
+      ]).catch(error => {
+        console.log('Background server sync failed or timed out:', error.message);
+      });
       
       console.log('✅ ChatService initialized successfully for user:', this.currentUser.id);
       return true;
@@ -189,6 +194,9 @@ class ChatService {
             // Update the current chats array
             this.chats = updatedChats;
             console.log('✅ Updated chats array with server data:', this.chats.length, 'chats');
+            
+            // Save updated chats
+            await this.saveChats();
           }
           
           console.log('📱 Loaded user-to-user chats from server:', userToUserChats.length);

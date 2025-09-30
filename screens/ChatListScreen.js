@@ -76,6 +76,9 @@ export default function ChatListScreen({ navigation }) {
     useCallback(() => {
       console.log('📱 ChatListScreen - Screen focused, refreshing chats and avatars');
       
+      // Always reload chats when screen is focused (will show server-synced chats)
+      loadChats();
+      
       // Refresh avatars in background (non-blocking)
       UserService.refreshAllUserAvatars().then(() => {
         console.log('🔄 Background avatar refresh completed, reloading participants data');
@@ -83,8 +86,6 @@ export default function ChatListScreen({ navigation }) {
         loadChats();
       }).catch(error => {
         console.log('Background avatar refresh failed:', error.message);
-        // Still load chats even if avatar refresh fails
-        loadChats();
       });
     }, [])
   );
