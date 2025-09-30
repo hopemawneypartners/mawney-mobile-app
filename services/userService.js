@@ -106,17 +106,18 @@ class UserService {
     
     if (user) {
       console.log('✅ User found:', user.name);
-      this.currentUser = user;
+      console.log('🖼️ User avatar type:', typeof user.avatar);
+      console.log('🖼️ User avatar value:', user.avatar);
+      
+      // Use fresh user data from USERS array (not cached)
+      this.currentUser = { ...user }; // Create fresh copy
       
       // Save to storage in background (non-blocking)
       this.saveCurrentUser().catch(error => {
         console.log('⚠️ Save user failed (non-critical):', error.message);
       });
       
-      // Load user profile from server in background (non-blocking)
-      this.loadUserProfileFromServer().catch(error => {
-        console.log('⚠️ Server profile load failed (non-critical):', error.message);
-      });
+      // DON'T load from server - we want to use the fresh local data
       
       return { success: true, user: this.currentUser };
     }
