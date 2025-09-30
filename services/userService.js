@@ -18,7 +18,7 @@ const USERS = [
     name: 'Hope Gilbert',
     email: 'hg@mawneypartners.com',
     password: 'Hunter1972',
-    avatar: 'https://ui-avatars.com/api/?name=Hope+Gilbert&background=004b35&color=ffffff&size=100',
+    avatar: profilePictures.hope,
     preferences: {
       notifications: true,
       darkMode: false,
@@ -30,7 +30,7 @@ const USERS = [
     name: 'Joshua Trister',
     email: 'jt@mawneypartners.com',
     password: 'Denmead100',
-    avatar: 'https://ui-avatars.com/api/?name=Joshua+Trister&background=266b52&color=ffffff&size=100',
+    avatar: profilePictures.josh,
     preferences: {
       notifications: true,
       darkMode: false,
@@ -42,7 +42,7 @@ const USERS = [
     name: 'Rachel Trister',
     email: 'finance@mawneypartners.com',
     password: 'Denmead100',
-    avatar: 'https://ui-avatars.com/api/?name=Rachel+Trister&background=4d8b70&color=ffffff&size=100',
+    avatar: profilePictures.rachel,
     preferences: {
       notifications: true,
       darkMode: false,
@@ -54,7 +54,7 @@ const USERS = [
     name: 'Jack Dalby',
     email: 'jd@mawneypartners.com',
     password: 'Denmead100',
-    avatar: 'https://ui-avatars.com/api/?name=Jack+Dalby&background=2d2926&color=ffffff&size=100',
+    avatar: profilePictures.jack,
     preferences: {
       notifications: true,
       darkMode: false,
@@ -66,7 +66,7 @@ const USERS = [
     name: 'Harry Edleman',
     email: 'he@mawneypartners.com',
     password: 'Denmead100',
-    avatar: 'https://ui-avatars.com/api/?name=Harry+Edleman&background=4c1f28&color=ffffff&size=100',
+    avatar: profilePictures.harry,
     preferences: {
       notifications: true,
       darkMode: false,
@@ -78,7 +78,7 @@ const USERS = [
     name: 'Tyler Johnson Thomas',
     email: 'tjt@mawneypartners.com',
     password: 'Denmead100',
-    avatar: 'https://ui-avatars.com/api/?name=Tyler+Johnson+Thomas&background=4d4742&color=ffffff&size=100',
+    avatar: profilePictures.tyler,
     preferences: {
       notifications: true,
       darkMode: false,
