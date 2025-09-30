@@ -1078,15 +1078,13 @@ class ChatService {
     const user = UserService.getUsers().find(u => u.id === userId);
     if (!user) return null;
     
-    // Get actual uploaded avatar
-    const actualAvatar = await UserService.getActualAvatar(userId);
-    
-    // If no uploaded avatar, try hardcoded avatar
-    const hardcodedAvatar = actualAvatar ? null : UserService.getHardcodedAvatar(userId);
+    // Use the avatar directly from USERS array (local JPG images)
+    // Don't try to get "actual" or "hardcoded" avatars - they override the local JPG
+    console.log('👤 getUserInfo for', user.name, '- Avatar type:', typeof user.avatar);
     
     return {
       ...user,
-      avatar: actualAvatar || hardcodedAvatar || user.avatar // Use uploaded avatar, hardcoded avatar, or fallback to generated one
+      avatar: user.avatar // Use avatar from USERS array
     };
   }
 
