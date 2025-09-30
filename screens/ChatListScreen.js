@@ -366,7 +366,7 @@ export default function ChatListScreen({ navigation }) {
             Participant={otherParticipant ? 'YES' : 'NO'} | Name={otherParticipant?.name || 'NONE'}
           </Text>
           <Text style={{ fontSize: 9, color: 'green', marginBottom: 4 }}>
-            ParticipantsData={participants.length} | ChatID={chat.id.substring(0, 20)}
+            ParticipantsData={participants.length} | ChatParticipants={chat.participants?.length || 0}
           </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>
