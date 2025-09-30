@@ -265,35 +265,33 @@ export default function App() {
   };
 
   const handleLogin = async (user) => {
-    try {
-      console.log('🔐 User logging in:', user.name);
-      
-      // Set user in UserService first (critical)
-      UserService.currentUser = user;
-      
-      // Save to storage (critical)
+    console.log('🔐 User logging in:', user.name);
+    
+    // Set user in UserService immediately
+    UserService.currentUser = user;
+    
+    // Set as logged in immediately
+    setIsLoggedIn(true);
+    setCurrentUser(user);
+    
+    console.log('✅ Login successful - User set in state');
+    
+    // Save to storage in background (non-blocking, non-critical)
+    setTimeout(async () => {
       try {
         await UserService.saveCurrentUser();
+        console.log('✅ User saved to storage');
       } catch (error) {
-        console.error('⚠️ Error saving user (non-critical):', error);
+        console.log('⚠️ Background save failed:', error.message);
       }
       
-      // Set in cross-platform auth (non-critical)
       try {
         await CrossPlatformAuth.setUser(user);
+        console.log('✅ User saved to cross-platform auth');
       } catch (error) {
-        console.error('⚠️ Error in cross-platform auth (non-critical):', error);
+        console.log('⚠️ Cross-platform auth failed:', error.message);
       }
-      
-      // Always set as logged in
-      setIsLoggedIn(true);
-      setCurrentUser(user);
-      
-      console.log('✅ Login successful');
-    } catch (error) {
-      console.error('❌ Error during login:', error);
-      Alert.alert('Login Error', 'An error occurred. Please try again.');
-    }
+    }, 100);
   };
 
   const handleLogout = () => {
