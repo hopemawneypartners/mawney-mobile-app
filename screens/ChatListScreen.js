@@ -321,16 +321,6 @@ export default function ChatListScreen({ navigation }) {
       >
         <View style={styles.chatAvatar}>
           {(() => {
-            // Debug logging
-            console.log('🖼️ Rendering avatar for chat:', chat.name, {
-              hasOtherParticipant: !!otherParticipant,
-              participantName: otherParticipant?.name,
-              hasAvatar: !!otherParticipant?.avatar,
-              avatarType: typeof otherParticipant?.avatar,
-              avatar: otherParticipant?.avatar,
-              imageError: imageError
-            });
-            
             if (chat.type === 'group') {
               return <Text style={styles.chatAvatarText}>👥</Text>;
             } else if (otherParticipant?.avatar && !imageError) {
@@ -360,6 +350,10 @@ export default function ChatListScreen({ navigation }) {
         </View>
         
         <View style={styles.chatContent}>
+          {/* DEBUG: Show avatar info on screen */}
+          <Text style={{ fontSize: 10, color: 'red', marginBottom: 4 }}>
+            DEBUG: Avatar={otherParticipant?.avatar ? 'YES' : 'NO'} | Type={typeof otherParticipant?.avatar} | Error={imageError ? 'YES' : 'NO'}
+          </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>
               {chat.name}
