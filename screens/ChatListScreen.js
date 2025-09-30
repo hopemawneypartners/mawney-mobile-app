@@ -274,7 +274,8 @@ export default function ChatListScreen({ navigation }) {
       loadChats();
     } catch (error) {
       console.error('Error creating chat:', error);
-      Alert.alert('Error', 'Failed to create chat');
+      // Show detailed error message to help debug
+      Alert.alert('Error', `Failed to create chat: ${error.message || 'Unknown error'}`);
     }
   };
 
