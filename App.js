@@ -268,19 +268,31 @@ export default function App() {
     try {
       console.log('🔐 User logging in:', user.name);
       
-      // Set user in cross-platform auth
-      await CrossPlatformAuth.setUser(user);
-      
-      // Also set in UserService for compatibility
+      // Set user in UserService first (critical)
       UserService.currentUser = user;
-      await UserService.saveCurrentUser();
       
+      // Save to storage (critical)
+      try {
+        await UserService.saveCurrentUser();
+      } catch (error) {
+        console.error('⚠️ Error saving user (non-critical):', error);
+      }
+      
+      // Set in cross-platform auth (non-critical)
+      try {
+        await CrossPlatformAuth.setUser(user);
+      } catch (error) {
+        console.error('⚠️ Error in cross-platform auth (non-critical):', error);
+      }
+      
+      // Always set as logged in
       setIsLoggedIn(true);
       setCurrentUser(user);
       
-      console.log('✅ Login successful across platforms');
+      console.log('✅ Login successful');
     } catch (error) {
       console.error('❌ Error during login:', error);
+      Alert.alert('Login Error', 'An error occurred. Please try again.');
     }
   };
 
@@ -297,18 +309,33 @@ export default function App() {
             try {
               console.log('🚪 User logging out...');
               
-              // Clear from cross-platform auth
-              await CrossPlatformAuth.clearUser();
+              // Clear from UserService first (critical)
+              UserService.currentUser = null;
               
-              // Also clear from UserService for compatibility
-              await UserService.logout();
+              // Clear from cross-platform auth (non-critical)
+              try {
+                await CrossPlatformAuth.clearUser();
+              } catch (error) {
+                console.error('⚠️ Error clearing cross-platform auth (non-critical):', error);
+              }
               
+              // Clear from UserService storage (non-critical)
+              try {
+                await UserService.logout();
+              } catch (error) {
+                console.error('⚠️ Error in UserService logout (non-critical):', error);
+              }
+              
+              // Always log out
               setIsLoggedIn(false);
               setCurrentUser(null);
               
-              console.log('✅ Logout successful across platforms');
+              console.log('✅ Logout successful');
             } catch (error) {
               console.error('❌ Error during logout:', error);
+              // Force logout anyway
+              setIsLoggedIn(false);
+              setCurrentUser(null);
             }
           }
         }
