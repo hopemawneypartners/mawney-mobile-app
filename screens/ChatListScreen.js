@@ -93,7 +93,16 @@ export default function ChatListScreen({ navigation }) {
   const initializeChats = async () => {
     try {
       setLoading(true);
+      
+      // Add a timeout to prevent infinite loading
+      const initTimeout = setTimeout(() => {
+        console.log('⚠️ ChatService initialization taking too long, showing UI anyway');
+        setLoading(false);
+        loadChats();
+      }, 10000); // 10 second timeout
+      
       await ChatService.initialize();
+      clearTimeout(initTimeout);
       
       // Refresh all user avatars from server to ensure we have the latest profile pictures
       console.log('🔄 Refreshing all user avatars for chat list...');
