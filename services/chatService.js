@@ -17,7 +17,14 @@ class ChatService {
   // Initialize chat service
   async initialize() {
     try {
-      this.currentUser = await UserService.loadCurrentUser();
+      // Try to get current user from UserService first (already in memory)
+      this.currentUser = UserService.getCurrentUser();
+      
+      // If not in memory, try to load from storage
+      if (!this.currentUser) {
+        this.currentUser = await UserService.loadCurrentUser();
+      }
+      
       console.log('🔍 ChatService initialize - Current user:', this.currentUser);
       
       if (!this.currentUser) {
