@@ -191,12 +191,19 @@ class UserService {
       const user = await crossPlatformAuth.getUser();
       
       if (user) {
-        this.currentUser = user;
+        // Find the matching user in USERS array to get fresh avatar
+        const freshUser = USERS.find(u => u.id === user.id || u.email === user.email);
         
-        // Load latest profile from server in background (non-blocking)
-        this.loadUserProfileFromServer().catch(error => {
-          console.log('Background profile sync failed:', error.message);
-        });
+        if (freshUser) {
+          // Use fresh user data with local JPG avatar
+          this.currentUser = { ...user, avatar: freshUser.avatar };
+          console.log('✅ Loaded user with fresh avatar:', this.currentUser.name, typeof this.currentUser.avatar);
+        } else {
+          this.currentUser = user;
+          console.log('⚠️ Loaded user but no fresh avatar found');
+        }
+        
+        // DON'T load from server - would overwrite local avatars
         
         return this.currentUser;
       }
