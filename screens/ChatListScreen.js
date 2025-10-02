@@ -248,6 +248,9 @@ export default function ChatListScreen({ navigation }) {
     const lastMessage = chat.lastMessage;
     const imageError = imageErrors[chat.id] || false;
     
+    // Debug: Log what lastMessage looks like
+    console.log('Chat:', chat.name, 'lastMessage:', lastMessage);
+    
     return (
       <TouchableOpacity
         style={styles.chatItem}
@@ -295,7 +298,7 @@ export default function ChatListScreen({ navigation }) {
               {chat.name}
             </Text>
             <Text style={styles.chatTime}>
-              {lastMessage ? formatTime(lastMessage.timestamp) : ''}
+              {lastMessage ? formatTime(lastMessage.timestamp) : 'Just now'}
             </Text>
           </View>
           
