@@ -317,16 +317,30 @@ export default function ChatListScreen({ navigation }) {
   };
 
   const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
+    if (!timestamp) return '';
     
-    if (diffInHours < 24) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffInHours < 168) { // 7 days
-      return date.toLocaleDateString([], { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    try {
+      const date = new Date(timestamp);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        console.log('Invalid timestamp:', timestamp);
+        return '';
+      }
+      
+      const now = new Date();
+      const diffInHours = (now - date) / (1000 * 60 * 60);
+      
+      if (diffInHours < 24) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (diffInHours < 168) { // 7 days
+        return date.toLocaleDateString([], { weekday: 'short' });
+      } else {
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      }
+    } catch (error) {
+      console.log('Error formatting timestamp:', timestamp, error);
+      return '';
     }
   };
 
