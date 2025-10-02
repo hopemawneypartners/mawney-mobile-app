@@ -120,6 +120,12 @@ class ChatService {
         await this.saveChats();
       }
 
+      // Fix participant data - convert names to IDs
+      userChats = this.fixChatParticipants(userChats);
+      
+      // Save fixed chats back to storage
+      await AsyncStorage.setItem(`${CHAT_STORAGE_KEY}_${this.currentUser.id}`, JSON.stringify(userChats));
+
       // Load shared group chats that this user should be part of
       const sharedGroupChats = await this.loadSharedGroupChats();
       
@@ -140,6 +146,43 @@ class ChatService {
       console.error('Error loading chats:', error);
       this.chats = [];
     }
+  }
+
+  // Fix chat participants by converting names to IDs
+  fixChatParticipants(chats) {
+    const allUsers = UserService.getUsers();
+    console.log('🔧 Fixing chat participants...');
+    
+    return chats.map(chat => {
+      if (!chat.participants || !Array.isArray(chat.participants)) {
+        console.log('⚠️ Chat has no participants:', chat.name);
+        return chat;
+      }
+      
+      const fixedParticipants = chat.participants.map(participant => {
+        // If it's already an ID, keep it
+        if (allUsers.find(u => u.id === participant)) {
+          return participant;
+        }
+        
+        // If it's a name, find the corresponding ID
+        const user = allUsers.find(u => u.name === participant);
+        if (user) {
+          console.log('🔧 Fixed participant:', participant, '->', user.id);
+          return user.id;
+        }
+        
+        console.log('❌ Could not fix participant:', participant);
+        return participant;
+      });
+      
+      if (JSON.stringify(chat.participants) !== JSON.stringify(fixedParticipants)) {
+        console.log('🔧 Fixed chat participants for:', chat.name);
+        return { ...chat, participants: fixedParticipants };
+      }
+      
+      return chat;
+    });
   }
 
   // Load AI Assistant chats from server
