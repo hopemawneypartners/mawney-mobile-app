@@ -335,52 +335,37 @@ export default function ChatListScreen({ navigation }) {
           {(() => {
             if (chat.type === 'group') {
               return <Text style={styles.chatAvatarText}>👥</Text>;
-            } else if (otherParticipant?.avatar && !imageError) {
-              return (
-                <Image 
-                  source={otherParticipant.avatar}
-                  style={styles.chatAvatarImage}
-                  onError={(error) => {
-                    console.log('❌ Image load error for', otherParticipant.name, ':', error.nativeEvent);
-                    setImageErrors(prev => ({ ...prev, [chat.id]: true }));
-                  }}
-                  onLoad={() => {
-                    console.log('✅ Image loaded for', otherParticipant.name);
-                  }}
-                  resizeMode="cover"
-                  accessibilityLabel={`Profile picture of ${otherParticipant.name}`}
-                />
-              );
             } else {
-              return (
-                <Text style={styles.chatAvatarText}>
-                  {otherParticipant?.name?.charAt(0) || '?'}
-                </Text>
-              );
+              // Get avatar directly from chat name
+              const user = UserService.getUsers().find(u => u.name === chat.name);
+              if (user && user.avatar) {
+                return (
+                  <Image 
+                    source={user.avatar}
+                    style={styles.chatAvatarImage}
+                    onError={(error) => {
+                      console.log('❌ Image load error for', chat.name, ':', error.nativeEvent);
+                      setImageErrors(prev => ({ ...prev, [chat.id]: true }));
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Image loaded for', chat.name);
+                    }}
+                    resizeMode="cover"
+                    accessibilityLabel={`Profile picture of ${chat.name}`}
+                  />
+                );
+              } else {
+                return (
+                  <Text style={styles.chatAvatarText}>
+                    {chat.name.charAt(0)}
+                  </Text>
+                );
+              }
             }
           })()}
         </View>
         
         <View style={styles.chatContent}>
-          {/* DEBUG: Show avatar info on screen */}
-          <Text style={{ fontSize: 9, color: 'red', marginBottom: 2 }}>
-            Avatar={otherParticipant?.avatar ? 'YES' : 'NO'} | Type={typeof otherParticipant?.avatar} | Err={imageError ? 'Y' : 'N'}
-          </Text>
-          <Text style={{ fontSize: 9, color: 'blue', marginBottom: 2 }}>
-            Participant={otherParticipant ? 'YES' : 'NO'} | Name={otherParticipant?.name || 'NONE'}
-          </Text>
-          <Text style={{ fontSize: 9, color: 'green', marginBottom: 4 }}>
-            ParticipantsData={participants.length} | ChatParticipants={chat.participants?.length || 0}
-          </Text>
-          <Text style={{ fontSize: 9, color: 'purple', marginBottom: 4 }}>
-            ParticipantIDs={JSON.stringify(chat.participants || [])}
-          </Text>
-          <Text style={{ fontSize: 9, color: 'orange', marginBottom: 4 }}>
-            AllUsers={UserService.getUsers().map(u => u.name).join(',')}
-          </Text>
-          <Text style={{ fontSize: 9, color: 'cyan', marginBottom: 4 }}>
-            FixTest={ChatService.fixChatParticipants ? 'YES' : 'NO'}
-          </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>
               {chat.name}
