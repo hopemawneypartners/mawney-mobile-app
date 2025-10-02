@@ -317,15 +317,18 @@ export default function ChatListScreen({ navigation }) {
   };
 
   const formatTime = (timestamp) => {
-    if (!timestamp) return '';
+    if (!timestamp) {
+      console.log('No timestamp provided');
+      return 'No time';
+    }
     
     try {
       const date = new Date(timestamp);
       
       // Check if date is valid
       if (isNaN(date.getTime())) {
-        console.log('Invalid timestamp:', timestamp);
-        return '';
+        console.log('Invalid timestamp:', timestamp, 'Type:', typeof timestamp);
+        return 'Invalid';
       }
       
       const now = new Date();
@@ -340,7 +343,7 @@ export default function ChatListScreen({ navigation }) {
       }
     } catch (error) {
       console.log('Error formatting timestamp:', timestamp, error);
-      return '';
+      return 'Error';
     }
   };
 
