@@ -135,12 +135,15 @@ export default function ChatListScreen({ navigation }) {
   };
 
   const loadParticipantsData = async (chatsToLoad) => {
+    console.log('🔍 loadParticipantsData called with', chatsToLoad.length, 'chats');
     try {
       const participantsMap = {};
       
       for (const chat of chatsToLoad) {
+        console.log('🔍 Processing chat:', chat.name, 'type:', chat.type);
         try {
           const participants = await ChatService.getChatParticipants(chat.id);
+          console.log('🔍 Got participants for', chat.name, ':', participants.length);
           participantsMap[chat.id] = participants || [];
           
           // Debug logging for avatars
@@ -161,6 +164,7 @@ export default function ChatListScreen({ navigation }) {
         }
       }
       
+      console.log('🔍 Setting participants data:', participantsMap);
       setParticipantsData(participantsMap);
       console.log('✅ All participants data loaded:', participantsMap);
     } catch (error) {
