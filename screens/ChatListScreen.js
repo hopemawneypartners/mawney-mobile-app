@@ -368,6 +368,9 @@ export default function ChatListScreen({ navigation }) {
           <Text style={{ fontSize: 9, color: 'green', marginBottom: 4 }}>
             ParticipantsData={participants.length} | ChatParticipants={chat.participants?.length || 0}
           </Text>
+          <Text style={{ fontSize: 9, color: 'purple', marginBottom: 4 }}>
+            ParticipantIDs={JSON.stringify(chat.participants || [])}
+          </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>
               {chat.name}
