@@ -1111,8 +1111,27 @@ class ChatService {
     console.log('🔍 getChatParticipants for chat:', chat.name, 'participants:', chat.participants);
     
     try {
+      // Fix: Convert names to IDs if needed
+      const allUsers = UserService.getUsers();
+      const participantIds = chat.participants.map(participant => {
+        // If participant is already an ID, use it
+        if (allUsers.find(u => u.id === participant)) {
+          return participant;
+        }
+        // If participant is a name, find the corresponding ID
+        const user = allUsers.find(u => u.name === participant);
+        if (user) {
+          console.log('🔧 Converting name to ID:', participant, '->', user.id);
+          return user.id;
+        }
+        console.log('❌ Could not find user for participant:', participant);
+        return null;
+      }).filter(Boolean);
+      
+      console.log('🔍 Converted participant IDs:', participantIds);
+      
       const participants = await Promise.all(
-        chat.participants.map(async (userId) => {
+        participantIds.map(async (userId) => {
           console.log('🔍 Getting user info for:', userId);
           const userInfo = await this.getUserInfo(userId);
           console.log('🔍 User info result:', userInfo ? userInfo.name : 'NULL');
