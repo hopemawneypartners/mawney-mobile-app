@@ -26,6 +26,8 @@
         "NSCameraUsageDescription": "This app needs access to camera to take profile pictures.",
         "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select profile pictures.",
         "NSUserNotificationsUsageDescription": "This app sends notifications about new articles and market updates.",
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for call recording and transcription.",
+        "NSSpeechRecognitionUsageDescription": "This app needs speech recognition access for call transcription.",
         "UIBackgroundModes": [
           "background-fetch",
           "background-processing",
@@ -55,6 +57,7 @@
         "android.permission.WAKE_LOCK",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
