@@ -1103,13 +1103,25 @@ class ChatService {
   // Get chat participants info
   async getChatParticipants(chatId) {
     const chat = this.chats.find(c => c.id === chatId);
-    if (!chat) return [];
+    if (!chat) {
+      console.log('❌ getChatParticipants: Chat not found:', chatId);
+      return [];
+    }
 
+    console.log('🔍 getChatParticipants for chat:', chat.name, 'participants:', chat.participants);
+    
     try {
       const participants = await Promise.all(
-        chat.participants.map(userId => this.getUserInfo(userId))
+        chat.participants.map(async (userId) => {
+          console.log('🔍 Getting user info for:', userId);
+          const userInfo = await this.getUserInfo(userId);
+          console.log('🔍 User info result:', userInfo ? userInfo.name : 'NULL');
+          return userInfo;
+        })
       );
-      return participants.filter(Boolean);
+      const filteredParticipants = participants.filter(Boolean);
+      console.log('🔍 Final participants count:', filteredParticipants.length);
+      return filteredParticipants;
     } catch (error) {
       console.error('Error getting chat participants:', error);
       return [];
