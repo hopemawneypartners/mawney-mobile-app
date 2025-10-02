@@ -38,7 +38,7 @@ export default function ChatListScreen({ navigation }) {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [imageErrors, setImageErrors] = useState({});
   const [isGroupChat, setIsGroupChat] = useState(false);
-  const [participantsData, setParticipantsData] = useState({});
+  // Note: participantsData removed - avatars now loaded directly from chat name
   const [chatToDelete, setChatToDelete] = useState(null);
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
 
@@ -76,17 +76,8 @@ export default function ChatListScreen({ navigation }) {
     useCallback(() => {
       console.log('📱 ChatListScreen - Screen focused, refreshing chats and avatars');
       
-      // Always reload chats when screen is focused (will show server-synced chats)
-      loadChats();
-      
-      // Refresh avatars in background (non-blocking)
-      UserService.refreshAllUserAvatars().then(() => {
-        console.log('🔄 Background avatar refresh completed, reloading participants data');
-        // Reload participants data after avatar refresh
+        // Always reload chats when screen is focused (will show server-synced chats)
         loadChats();
-      }).catch(error => {
-        console.log('Background avatar refresh failed:', error.message);
-      });
     }, [])
   );
 
@@ -104,12 +95,8 @@ export default function ChatListScreen({ navigation }) {
       await ChatService.initialize();
       clearTimeout(initTimeout);
       
-      // Refresh all user avatars from server to ensure we have the latest profile pictures
-      console.log('🔄 Refreshing all user avatars for chat list...');
-      await UserService.refreshAllUserAvatars();
-      
-      // Load chats and participants data after avatar refresh
-      loadChats();
+          // Load chats
+          loadChats();
     } catch (error) {
       console.error('Error initializing chats:', error);
       Alert.alert('Error', 'Failed to load chats');
@@ -130,56 +117,15 @@ export default function ChatListScreen({ navigation }) {
     setTotalUnreadCount(totalUnread);
     console.log('📊 Total unread messages:', totalUnread);
     
-    // Load participants data with actual avatars
-    await loadParticipantsData(allChats);
+    // Note: Participant loading removed - avatars now loaded directly from chat name
   };
 
-  const loadParticipantsData = async (chatsToLoad) => {
-    console.log('🔍 loadParticipantsData called with', chatsToLoad.length, 'chats');
-    try {
-      const participantsMap = {};
-      
-      for (const chat of chatsToLoad) {
-        console.log('🔍 Processing chat:', chat.name, 'type:', chat.type);
-        try {
-          const participants = await ChatService.getChatParticipants(chat.id);
-          console.log('🔍 Got participants for', chat.name, ':', participants.length);
-          participantsMap[chat.id] = participants || [];
-          
-          // Debug logging for avatars
-          if (participants && participants.length > 0) {
-            participants.forEach(participant => {
-              console.log(`👤 Participant ${participant.name}:`, {
-                hasAvatar: participant.avatar ? 'Yes' : 'No',
-                avatarLength: participant.avatar ? participant.avatar.length : 0,
-                avatarPreview: participant.avatar ? participant.avatar.substring(0, 50) + '...' : 'None'
-              });
-            });
-          }
-          
-          console.log(`✅ Loaded ${participants?.length || 0} participants for chat ${chat.name}`);
-        } catch (chatError) {
-          console.error(`❌ Error loading participants for chat ${chat.name}:`, chatError);
-          participantsMap[chat.id] = [];
-        }
-      }
-      
-      console.log('🔍 Setting participants data:', participantsMap);
-      setParticipantsData(participantsMap);
-      console.log('✅ All participants data loaded:', participantsMap);
-    } catch (error) {
-      console.error('Error loading participants data:', error);
-    }
-  };
+  // Note: Participant loading removed - avatars now loaded directly from chat name
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     
-    // Refresh all user avatars from server
-    console.log('🔄 Pull-to-refresh: Refreshing all user avatars...');
-    await UserService.refreshAllUserAvatars();
-    
-    // Reload chats and participants data after avatar refresh
+    // Reload chats
     loadChats();
     setRefreshing(false);
   }, []);
@@ -300,28 +246,6 @@ export default function ChatListScreen({ navigation }) {
   const renderChatItem = ({ item: chat }) => {
     const unreadCount = ChatService.getUnreadCount(chat.id);
     const lastMessage = chat.lastMessage;
-    const participants = participantsData[chat.id] || [];
-    
-    console.log('🔍 renderChatItem:', chat.name, {
-      chatId: chat.id,
-      hasParticipantsData: !!participantsData[chat.id],
-      participantsCount: participants.length,
-      participantsDataKeys: Object.keys(participantsData)
-    });
-    
-    const otherParticipant = Array.isArray(participants) ? participants.find(p => p.id !== ChatService.currentUser?.id) : null;
-    
-    // Debug logging
-    console.log('🔍 renderChatItem for', chat.name, ':', {
-      otherParticipant: otherParticipant ? {
-        name: otherParticipant.name,
-        avatar: otherParticipant.avatar,
-        hasAvatar: otherParticipant.avatar ? 'Yes' : 'No'
-      } : 'None',
-      participants: Array.isArray(participants) ? participants.map(p => ({ id: p.id, name: p.name, avatar: p.avatar })) : [],
-      currentUser: ChatService.currentUser?.id
-    });
-    
     const imageError = imageErrors[chat.id] || false;
     
     return (
