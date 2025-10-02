@@ -374,6 +374,9 @@ export default function ChatListScreen({ navigation }) {
           <Text style={{ fontSize: 9, color: 'orange', marginBottom: 4 }}>
             AllUsers={UserService.getUsers().map(u => u.name).join(',')}
           </Text>
+          <Text style={{ fontSize: 9, color: 'cyan', marginBottom: 4 }}>
+            FixTest={ChatService.fixChatParticipants ? 'YES' : 'NO'}
+          </Text>
           <View style={styles.chatHeader}>
             <Text style={styles.chatName} numberOfLines={1}>
               {chat.name}

@@ -1154,43 +1154,38 @@ class ChatService {
     console.log('🔍 getChatParticipants for chat:', chat.name, 'participants:', chat.participants);
     
     try {
-      // Fix: Convert names to IDs if needed
+      // Force fix: Always use correct user IDs based on chat name
       const allUsers = UserService.getUsers();
-      console.log('🔍 All users available:', allUsers.map(u => `"${u.name}"`));
-      console.log('🔍 Chat participants:', chat.participants.map(p => `"${p}"`));
+      let participantIds = [];
       
-      const participantIds = chat.participants.map(participant => {
-        console.log('🔍 Processing participant:', `"${participant}"`);
-        
-        // If participant is already an ID, use it
-        const existingUser = allUsers.find(u => u.id === participant);
-        if (existingUser) {
-          console.log('✅ Participant is already an ID:', participant);
-          return participant;
+      // For direct chats, find the other participant by matching the chat name
+      if (chat.type === 'direct') {
+        const otherUser = allUsers.find(u => u.name === chat.name);
+        if (otherUser) {
+          participantIds = [this.currentUser.id, otherUser.id];
+          console.log('🔧 Forced direct chat participants:', participantIds);
+        } else {
+          console.log('❌ Could not find user for chat name:', chat.name);
+          return [];
         }
-        
-        // If participant is a name, find the corresponding ID
-        const user = allUsers.find(u => {
-          const match = u.name === participant;
-          console.log(`🔍 Comparing "${u.name}" === "${participant}":`, match);
-          return match;
-        });
-        
-        if (user) {
-          console.log('🔧 Converting name to ID:', participant, '->', user.id);
-          return user.id;
-        }
-        console.log('❌ Could not find user for participant:', participant);
-        return null;
-      }).filter(Boolean);
+      } else {
+        // For other chat types, try to convert existing participants
+        participantIds = chat.participants.map(participant => {
+          // If participant is already an ID, use it
+          if (allUsers.find(u => u.id === participant)) {
+            return participant;
+          }
+          // If participant is a name, find the corresponding ID
+          const user = allUsers.find(u => u.name === participant);
+          return user ? user.id : null;
+        }).filter(Boolean);
+      }
       
-      console.log('🔍 Converted participant IDs:', participantIds);
+      console.log('🔍 Final participant IDs:', participantIds);
       
       const participants = await Promise.all(
         participantIds.map(async (userId) => {
-          console.log('🔍 Getting user info for:', userId);
           const userInfo = await this.getUserInfo(userId);
-          console.log('🔍 User info result:', userInfo ? userInfo.name : 'NULL');
           return userInfo;
         })
       );
