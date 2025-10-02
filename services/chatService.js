@@ -1113,13 +1113,26 @@ class ChatService {
     try {
       // Fix: Convert names to IDs if needed
       const allUsers = UserService.getUsers();
+      console.log('🔍 All users available:', allUsers.map(u => `"${u.name}"`));
+      console.log('🔍 Chat participants:', chat.participants.map(p => `"${p}"`));
+      
       const participantIds = chat.participants.map(participant => {
+        console.log('🔍 Processing participant:', `"${participant}"`);
+        
         // If participant is already an ID, use it
-        if (allUsers.find(u => u.id === participant)) {
+        const existingUser = allUsers.find(u => u.id === participant);
+        if (existingUser) {
+          console.log('✅ Participant is already an ID:', participant);
           return participant;
         }
+        
         // If participant is a name, find the corresponding ID
-        const user = allUsers.find(u => u.name === participant);
+        const user = allUsers.find(u => {
+          const match = u.name === participant;
+          console.log(`🔍 Comparing "${u.name}" === "${participant}":`, match);
+          return match;
+        });
+        
         if (user) {
           console.log('🔧 Converting name to ID:', participant, '->', user.id);
           return user.id;
